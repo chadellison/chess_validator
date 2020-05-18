@@ -74,17 +74,19 @@ RSpec.describe ChessValidator::MoveLogic do
 
   describe 'moves_for_king' do
     it 'returns an array of all possible moves for a king in a given position' do
+      piece = ChessValidator::Piece.new('K', 36)
       expected = ['d5', 'd3', 'c4', 'e4', 'e5', 'c5', 'c3', 'e3', 'b4', 'f4'].sort
 
-      expect(ChessValidator::MoveLogic.moves_for_king('d4').sort).to eq expected
+      expect(ChessValidator::MoveLogic.moves_for_king(piece).sort).to eq expected
     end
   end
 
   describe 'moves_for_knight' do
     it 'returns an array of all possible moves for a knight in a given position' do
-      expected = ['b5', 'b3', 'f5', 'f3', 'c6', 'c2', 'e6', 'e2']
+      expected = ['b5', 'b3', 'f5', 'f3', 'c6', 'c2', 'e6', 'e2'].sort
 
-      expect(ChessValidator::MoveLogic.moves_for_knight('d4')).to eq expected
+      piece = ChessValidator::Piece.new('N', 36)
+      expect(ChessValidator::MoveLogic.moves_for_knight(piece.square_index).sort).to eq expected
     end
   end
 

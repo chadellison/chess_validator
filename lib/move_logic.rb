@@ -182,9 +182,9 @@ module ChessValidator
         when 'q'
           moves_for_queen(piece.position)
         when 'k'
-          moves_for_king(piece.position)
+          moves_for_king(piece)
         when 'n'
-          moves_for_knight(piece.position)
+          moves_for_knight(piece.square_index)
         when 'p'
           moves_for_pawn(piece)
         end
@@ -222,43 +222,26 @@ module ChessValidator
         moves_for_rook(piece.position) + moves_for_bishop(piece)
       end
 
-      def spaces_near_king(position)
-        moves = [
-          (position[0].ord - 1).chr + position[1],
-          (position[0].ord - 1).chr + (position[1].to_i + 1).to_s,
-          position[0] + (position[1].to_i + 1).to_s,
-          (position[0].ord + 1).chr + (position[1].to_i + 1).to_s,
-          (position[0].ord + 1).chr + position[1],
-          (position[0].ord + 1).chr + (position[1].to_i - 1).to_s,
-          (position[0] + (position[1].to_i - 1).to_s),
-          (position[0].ord - 1).chr + (position[1].to_i - 1).to_s,
-        ]
-        remove_out_of_bounds_moves(moves)
+      def spaces_near_king(index)
+        [
+          SQUARE_KEY[index - 1], SQUARE_KEY[index + 1],
+          SQUARE_KEY[index - 7], SQUARE_KEY[index - 8], SQUARE_KEY[index - 9],
+          SQUARE_KEY[index + 7], SQUARE_KEY[index + 8], SQUARE_KEY[index + 9]
+        ].compact
       end
 
-      def moves_for_king(position)
+      def moves_for_king(piece)
+        position = piece.position
         castle_moves = [(position[0].ord - 2).chr + position[1], position[0].next.next + position[1]]
-        spaces_near_king(position) + castle_moves
+        spaces_near_king(piece.square_index) + castle_moves
       end
 
-      def moves_for_knight(position)
-        moves = []
-        column = position[0].ord
-        row = position[1].to_i
-
-        moves << (column - 2).chr + (row + 1).to_s
-        moves << (column - 2).chr + (row - 1).to_s
-
-        moves << (column + 2).chr + (row + 1).to_s
-        moves << (column + 2).chr + (row - 1).to_s
-
-        moves << (column - 1).chr + (row + 2).to_s
-        moves << (column - 1).chr + (row - 2).to_s
-
-        moves << (column + 1).chr + (row + 2).to_s
-        moves << (column + 1).chr + (row - 2).to_s
-
-        remove_out_of_bounds_moves(moves)
+      def moves_for_knight(index)
+        [
+          SQUARE_KEY[index - 10], SQUARE_KEY[index - 17], SQUARE_KEY[index - 15],
+          SQUARE_KEY[index - 6], SQUARE_KEY[index + 10], SQUARE_KEY[index + 17],
+          SQUARE_KEY[index + 15], SQUARE_KEY[index + 6]
+        ].compact
       end
 
       def moves_for_pawn(pawn)
