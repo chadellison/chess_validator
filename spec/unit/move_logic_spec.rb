@@ -61,36 +61,19 @@ RSpec.describe ChessValidator::MoveLogic do
     context 'when the pawn is on d4' do
       it 'returns an array of all possible moves for a pawn (of either color) in a given position' do
         piece = ChessValidator::Piece.new('p', 36)
-        expected = ["c3", "e3", "d3"]
+        expected = ["c3", "e3", "d3"].sort
 
-        expect(ChessValidator::MoveLogic.moves_for_pawn(piece)).to eq expected
+        expect(ChessValidator::MoveLogic.moves_for_pawn(piece).sort).to eq expected
       end
     end
 
     context 'when the pawn is on its starting square' do
       it 'returns an array of all possible moves for a pawn (of either color) in a given position' do
         piece = ChessValidator::Piece.new('P', 52)
-        expected = ["c3", "e3", "d3", "d4"]
+        expected = ["c3", "e3", "d3", "d4"].sort
 
-        expect(ChessValidator::MoveLogic.moves_for_pawn(piece)).to eq expected
+        expect(ChessValidator::MoveLogic.moves_for_pawn(piece).sort).to eq expected
       end
-    end
-  end
-
-  describe 'remove_out_of_bounds_moves' do
-    it 'removes coordinates that are greater than 8 and less than 1' do
-      actual = ChessValidator::MoveLogic.remove_out_of_bounds_moves(['a0', 'a2', 'a9'])
-      expect(actual).to eq ['a2']
-    end
-
-    it 'removes coordinates that are greater than h and less than a' do
-      actual = ChessValidator::MoveLogic.remove_out_of_bounds_moves(['`0', 'a2', 'i9'])
-      expect(actual).to eq ['a2']
-    end
-
-    it 'does not remove coordinates that are within bounds' do
-      actual = ChessValidator::MoveLogic.remove_out_of_bounds_moves(['a1', 'a2', 'a3'])
-      expect(actual).to eq ['a1', 'a2', 'a3']
     end
   end
 

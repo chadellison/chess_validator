@@ -246,37 +246,28 @@ module ChessValidator
       end
 
       def moves_for_pawn(pawn)
-        position = pawn.position
-        left_letter = previous_char(position[0])
-        right_letter = position[0].next
+        possible_moves = []
 
-
-        up_count = position[1].to_i + 1
-        down_count = position[1].to_i - 1
-
-        one_forward = pawn.color == 'w' ? position[1].to_i + 1 : position[1].to_i - 1
-
-        possible_moves = [
-          left_letter[0] + one_forward.to_s,
-          right_letter[0] + one_forward.to_s,
-          position[0] + one_forward.to_s,
-        ]
-
-        if pawn.color == 'w' && position[1] == '2' || pawn.color == 'b' && position[1] == '7'
-          two_forward = pawn.color == 'w' ? up_count + 1 : (down_count - 1)
-          possible_moves << position[0] + two_forward.to_s
+        if pawn.color == 'w'
+          sum1 = -9
+          sum2 = -8
+          sum3 = -7
+        else
+          sum1 = 9
+          sum2 = 8
+          sum3 = 7
         end
 
-        remove_out_of_bounds_moves(possible_moves)
-      end
+        possible_moves << SQUARE_KEY[pawn.square_index + sum1]
+        possible_moves << SQUARE_KEY[pawn.square_index + sum2]
+        possible_moves << SQUARE_KEY[pawn.square_index + sum3]
 
-      def remove_out_of_bounds_moves(moves)
-        moves.reject do |move|
-          move[0] < 'a' ||
-            move[0] > 'h' ||
-            move[1..-1].to_i < 1 ||
-            move[1..-1].to_i > 8
+        if pawn.color == 'w' && pawn.position[1] == '2' || pawn.color == 'b' && pawn.position[1] == '7'
+          two_forward = pawn.color == 'w' ? -16 : 16
+          possible_moves << SQUARE_KEY[pawn.square_index + two_forward]
         end
+
+        possible_moves.compact
       end
 
       def moves_horizontal(position)
