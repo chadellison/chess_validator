@@ -40,8 +40,8 @@ module ChessValidator
         if position[0] == move[0]
           advance_pawn?(piece, board, move)
         else
-          target_piece = find_piece(board, position)
-          (target_piece && target_piece.color != piece.color) || move == fen.en_pessant
+          target_piece = find_piece(board, move)
+          (target_piece && target_piece.color != piece.color) || move == fen.en_passant
         end
       end
 

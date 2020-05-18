@@ -1,5 +1,6 @@
 require 'move_logic'
 require 'piece'
+require 'pgn'
 
 RSpec.describe ChessValidator::MoveLogic do
   describe 'moves_for_rook' do
@@ -350,6 +351,66 @@ RSpec.describe ChessValidator::MoveLogic do
       end
     end
   end
+
+  describe 'handle_pawn' do
+    context 'when the pawn is advancing' do
+      it 'calls advance_pawn' do
+        pawn = ChessValidator::Piece.new('P', 52)
+        board = { 52 => pawn }
+        fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+        expect(ChessValidator::MoveLogic).to receive(:advance_pawn?).with(pawn, board, 'd4')
+
+        ChessValidator::MoveLogic.handle_pawn(pawn, board, 'd4', fen)
+      end
+    end
+
+    context 'when the pawn is not advancing' do
+      context 'when there is an enemy piece on the square to capture' do
+        it 'returns true' do
+          pawn = ChessValidator::Piece.new('P', 52)
+          enemy_piece = ChessValidator::Piece.new('q', 43)
+          board = { 52 => pawn, 43 => enemy_piece }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_pawn(pawn, board, 'c3', fen)).to be true
+        end
+      end
+
+      context 'when there is an ally piece on the square' do
+        it 'returns false' do
+          pawn = ChessValidator::Piece.new('P', 52)
+          ally_piece = ChessValidator::Piece.new('Q', 43)
+          board = { 52 => pawn, 43 => ally_piece }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_pawn(pawn, board, 'c3', fen)).to be false
+        end
+      end
+
+      context 'when there is an opportunity to en_passant' do
+        it 'returns true' do
+          pawn = ChessValidator::Piece.new('P', 28)
+          enemy_pawn = ChessValidator::Piece.new('p', 29)
+          board = { 28 => pawn, 29 => enemy_pawn }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_pawn(pawn, board, 'e6', fen)).to be true
+        end
+      end
+
+      context 'when there is neither a piece nor an opportunity to en_passant' do
+        it 'returns false' do
+          pawn = ChessValidator::Piece.new('P', 52)
+          board = { 52 => pawn }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_pawn(pawn, board, 'c3', fen)).to be false
+        end
+      end
+    end
+  end
+
 
   # describe 'king_is_safe?' do
   #   context 'when the king is not in check' do
