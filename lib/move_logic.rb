@@ -97,49 +97,26 @@ module ChessValidator
         if piece.piece_type.downcase == 'n'
           true
         elsif position[0] == move[0]
-          !vertical_collision?(piece.position, move, occupied_spaces)
+          !collision?(piece.position, move, occupied_spaces, 1, 0)
         elsif position[1] == move[1]
-          !horizontal_collision?(piece.position, move, occupied_spaces)
+          !collision?(piece.position, move, occupied_spaces, 0, 1)
         else
           !diagonal_collision?(piece.position, move, occupied_spaces)
         end
       end
 
-      def vertical_collision?(position, destination, occupied_spaces)
-        start_index = position[1]
-        end_index = destination[1]
+      def collision?(position, destination, occupied_spaces, i1, i2)
+        start_index = position[i1]
+        end_index = destination[i1]
 
         if start_index > end_index
-          start_index = destination[1]
-          end_index = position[1]
+          start_index = destination[i1]
+          end_index = position[i1]
         end
 
-        row_pieces = occupied_spaces.filter do |space|
-          space[0] == position[0] && space[1] > start_index && space[1] < end_index
-        end
-
-        !row_pieces.empty?
-      end
-
-      def horizontal_collision?(position, destination, occupied_spaces)
-        # if position[0] > destination[0]
-        #   !(moves_left(position, (destination[0].ord + 1).chr) & occupied_spaces).empty?
-        # else
-        #   !(moves_right(position, (destination[0].ord - 1).chr) & occupied_spaces).empty?
-        # end
-        start_index = position[0]
-        end_index = destination[0]
-
-        if start_index > end_index
-          start_index = destination[0]
-          end_index = position[0]
-        end
-
-        row_pieces = occupied_spaces.filter do |space|
-          space[1] == position[1] && space[0] > start_index && space[0] < end_index
-        end
-
-        !row_pieces.empty?
+        occupied_spaces.select do |space|
+          space[i2] == position[i2] && space[i1] > start_index && space[i1] < end_index
+        end.size > 0
       end
 
       def diagonal_collision?(position, destination, occupied_spaces)

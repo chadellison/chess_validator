@@ -135,20 +135,20 @@ RSpec.describe ChessValidator::MoveLogic do
   describe 'vertical_collision?' do
     context 'when there is a piece above in the path of the destination' do
       it 'returns true' do
-        actual = ChessValidator::MoveLogic.vertical_collision?('a1', 'a8', ['a4'])
+        actual = ChessValidator::MoveLogic.collision?('a1', 'a8', ['a4'], 1, 0)
         expect(actual).to eq true
       end
     end
     context 'when there is a piece below in the path of the destination' do
       it 'returns true' do
-        actual = ChessValidator::MoveLogic.vertical_collision?('b8', 'b1', ['b4'])
+        actual = ChessValidator::MoveLogic.collision?('b8', 'b1', ['b4'], 1, 0)
         expect(actual).to eq true
       end
     end
 
     context 'when there is no piece in the path of the destination' do
       it 'returns false' do
-        actual = ChessValidator::MoveLogic.vertical_collision?('b8', 'b7', ['b4'])
+        actual = ChessValidator::MoveLogic.collision?('b8', 'b7', ['b4'], 1, 0)
         expect(actual).to eq false
       end
     end
@@ -158,20 +158,20 @@ RSpec.describe ChessValidator::MoveLogic do
     context 'when a piece is in the way of the move path from left to right' do
       it 'returns true' do
         occupied_spaces = ['d1']
-        expect(ChessValidator::MoveLogic.horizontal_collision?('a1', 'e1', occupied_spaces)).to be true
+        expect(ChessValidator::MoveLogic.collision?('a1', 'e1', occupied_spaces, 0, 1)).to be true
       end
     end
     context 'when a piece is in the way of the move path from right to left' do
       it 'returns true' do
         occupied_spaces = ['d1']
-        expect(ChessValidator::MoveLogic.horizontal_collision?('e1', 'a1', occupied_spaces)).to be true
+        expect(ChessValidator::MoveLogic.collision?('e1', 'a1', occupied_spaces, 0, 1)).to be true
       end
     end
 
     context 'when a piece is not in the way of another' do
       it 'returns false' do
         occupied_spaces = ['d1']
-        expect(ChessValidator::MoveLogic.horizontal_collision?('f1', 'e1', occupied_spaces)).to be false
+        expect(ChessValidator::MoveLogic.collision?('f1', 'e1', occupied_spaces, 0, 1)).to be false
       end
     end
   end
