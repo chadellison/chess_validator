@@ -38,18 +38,22 @@ module ChessValidator
         position = piece.position
 
         if position[0] == move[0]
-          if (position[1].to_i - move[1].to_i).abs == 1
-            empty_square?(board, move)
-          else
-            occupied_spaces = []
-            board.values.each do |piece|
-              occupied_spaces << piece.position if piece
-            end
-            valid_move_path?(piece, move, occupied_spaces) && empty_square?(board, move)
-          end
+          advance_pawn?(piece, board, move)
         else
           target_piece = find_piece(board, position)
           (target_piece && target_piece.color != piece.color) || move == fen.en_pessant
+        end
+      end
+
+      def advance_pawn?(pawn, board, move)
+        if (pawn.position[1].to_i - move[1].to_i).abs == 1
+          empty_square?(board, move)
+        else
+          occupied_spaces = []
+          board.values.each do |piece|
+            occupied_spaces << piece.position if piece
+          end
+          valid_move_path?(pawn, move, occupied_spaces) && empty_square?(board, move)
         end
       end
 
@@ -67,7 +71,7 @@ module ChessValidator
       end
 
       def empty_square?(board, move)
-        board.values.detect { |piece| piece.position == move }.blank?
+        board.values.detect { |piece| piece.position == move }.nil?
       end
 
       def valid_move_path?(piece, move, occupied_spaces)

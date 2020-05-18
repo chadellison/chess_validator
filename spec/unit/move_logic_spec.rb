@@ -304,6 +304,53 @@ RSpec.describe ChessValidator::MoveLogic do
     end
   end
 
+  describe 'advance_pawn' do
+    context 'when the pawn advances one sqare forward' do
+      context 'when the square is empty' do
+        it 'returns true' do
+          pawn = ChessValidator::Piece.new('P', 52)
+          board = { 52 => pawn }
+          expect(ChessValidator::MoveLogic.advance_pawn?(pawn, board, 'd3')).to be true
+        end
+      end
+      context 'when the square is not empty' do
+        it 'returns false' do
+          pawn = ChessValidator::Piece.new('P', 52)
+          rook = ChessValidator::Piece.new('r', 44)
+          board = { 52 => pawn, 44 => rook }
+          expect(ChessValidator::MoveLogic.advance_pawn?(pawn, board, 'd3')).to be false
+        end
+      end
+    end
+
+    context 'when the pawn advances advances two squares forward' do
+      context 'when the square is empty' do
+        it 'returns true' do
+          pawn = ChessValidator::Piece.new('P', 52)
+          board = { 52 => pawn }
+          expect(ChessValidator::MoveLogic.advance_pawn?(pawn, board, 'd4')).to be true
+        end
+      end
+      context 'when the square is not empty' do
+        it 'returns false' do
+          pawn = ChessValidator::Piece.new('P', 52)
+          rook = ChessValidator::Piece.new('r', 36)
+          board = { 52 => pawn, 44 => rook }
+          expect(ChessValidator::MoveLogic.advance_pawn?(pawn, board, 'd4')).to be false
+        end
+      end
+    end
+
+    context 'when the pawn advances advances two squares but their is a piece in the path' do
+      it 'returns false' do
+        pawn = ChessValidator::Piece.new('P', 52)
+        rook = ChessValidator::Piece.new('r', 44)
+        board = { 52 => pawn, 44 => rook }
+        expect(ChessValidator::MoveLogic.advance_pawn?(pawn, board, 'd4')).to be false
+      end
+    end
+  end
+
   # describe 'king_is_safe?' do
   #   context 'when the king is not in check' do
   #     let(:game) {
