@@ -120,22 +120,24 @@ module ChessValidator
       end
 
       def diagonal_collision?(position, destination, occupied_spaces)
-        if position[0] < destination[0]
-          horizontal_moves = moves_right(position, (destination[0].ord - 1).chr)
-        else
-          horizontal_moves = moves_left(position, (destination[0].ord + 1).chr)
-        end
-        # left or right
-
         difference = (position[1].to_i - destination[1].to_i).abs - 1
-        if position[1] < destination[1]
-          vertical_moves = moves_up(position, difference + position[1].to_i)
-        else
-          vertical_moves = moves_down(position, (difference - position[1].to_i).abs)
-        end
 
-        !(extract_diagonals(horizontal_moves.zip(vertical_moves)) & occupied_spaces)
-          .empty?
+        horizontal_multiplyer = 1
+        horizontal_multiplyer = -1 if position[0] > destination[0]
+
+        vertical_multiplyer = 1
+        vertical_multiplyer = -1 if position[1] > destination[1]
+
+        move_path = []
+        difference.times do |n|
+
+          column = (position[0].ord + ((n + 1) * horizontal_multiplyer)).chr
+          row = (position[1].to_i + ((n + 1) * vertical_multiplyer)).to_s
+
+
+          move_path << column + row
+        end
+        !(move_path & occupied_spaces).empty?
       end
 
       def pinned?(piece, board, fen)
@@ -277,12 +279,6 @@ module ChessValidator
         end
       end
 
-      def extract_diagonals(moves)
-        moves.map do |move_pair|
-          (move_pair[0][0] + move_pair[1][1]) unless move_pair.include?(nil)
-        end.compact
-      end
-
       def moves_horizontal(position)
         possible_moves = []
         column = 'a'
@@ -306,52 +302,6 @@ module ChessValidator
           row = row.next
         end
 
-        possible_moves
-      end
-
-      def moves_up(position, count = 8)
-        possible_moves = []
-        row = position[1].to_i
-
-        while row < count
-          row += 1
-          possible_moves << (position[0] + row.to_s)
-        end
-        possible_moves
-      end
-
-      def moves_down(position, count = 1)
-        possible_moves = []
-        row = position[1].to_i
-
-        while row > count
-          row -= 1
-          possible_moves << (position[0] + row.to_s)
-        end
-        possible_moves
-      end
-
-      def moves_left(position, letter = 'a')
-        possible_moves = []
-        column = position[0]
-
-        while column > letter
-          column = previous_char(column)
-
-          possible_moves << (column + position[1])
-        end
-        possible_moves
-      end
-
-      def moves_right(position, letter = 'h')
-        possible_moves = []
-        column = position[0]
-
-        while column < letter
-          column = column.next
-
-          possible_moves << (column + position[1])
-        end
         possible_moves
       end
     end

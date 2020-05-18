@@ -12,38 +12,6 @@ RSpec.describe ChessValidator::MoveLogic do
     end
   end
 
-  describe 'moves_up' do
-    it 'returns an array of all possible moves up given a position' do
-      expected = ['f4', 'f5', 'f6', 'f7', 'f8']
-
-      expect(ChessValidator::MoveLogic.moves_up('f3')).to eq expected
-    end
-  end
-
-  describe 'moves_down' do
-    it 'returns an array of all possible moves down given a position' do
-      expected = ['f2', 'f1']
-
-      expect(ChessValidator::MoveLogic.moves_down('f3')).to eq expected
-    end
-  end
-
-  describe 'moves_left' do
-    it 'returns an array of all possible moves left given a position' do
-      expected = ['e3', 'd3', 'c3', 'b3', 'a3']
-
-      expect(ChessValidator::MoveLogic.moves_left('f3')).to eq expected
-    end
-  end
-
-  describe 'moves_right' do
-    it 'returns an array of all possible moves right given a position' do
-      expected = ['g3', 'h3']
-
-      expect(ChessValidator::MoveLogic.moves_right('f3')).to eq expected
-    end
-  end
-
   describe 'moves_for_bishop' do
     it 'returns an array of all possible moves for a bishop in a given position' do
       expected = ['e5', 'f6', 'g7', 'h8', 'c5', 'b6', 'a7', 'c3', 'b2', 'a1',
@@ -58,12 +26,6 @@ RSpec.describe ChessValidator::MoveLogic do
 
         expect(ChessValidator::MoveLogic.moves_for_bishop('c7').sort).to eq expected
       end
-    end
-  end
-
-  describe 'extract_diagonals' do
-    it 'returns an array of each set\'s first coordinate\'s column and second corrdinate\'s row' do
-      expect(ChessValidator::MoveLogic.extract_diagonals([['b2', 'a3']])).to eq ['b3']
     end
   end
 
