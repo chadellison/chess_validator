@@ -1,3 +1,5 @@
+require_relative './constants/square_key'
+
 module ChessValidator
   class MoveLogic
     class << self
@@ -19,20 +21,36 @@ module ChessValidator
       def valid_move?(piece, board, move, fen)
         case piece.piece_type.downcase
         when 'k'
-          handle_king
+          handle_king(piece, board, move, fen)
         when 'p'
           handle_pawn(piece, board, move, fen)
-        when 'n'
         else
+
           # valid_move_path
           # valid_destination
           # king_is_safe?
         end
       end
 
-      def handle_king(position, board, move, fen)
-
+      def handle_king(king, board, move, fen)
+        if (king.position[0].ord - move[0].ord).abs == 2
+        else
+          valid_destination?(king, board, move) && king_is_safe?(king, board)
+        end
       end
+
+      def king_is_safe?(king, board)
+        # any pawns on diags
+        # nights
+        # any bishops on diags
+        # any rooks
+        # queens
+        # kings
+      end
+
+      # def pawn_threat?(king, board)
+      #
+      # end
 
       def handle_pawn(piece, board, move, fen)
         position = piece.position
@@ -160,7 +178,7 @@ module ChessValidator
         when 'r'
           moves_for_rook(piece.position)
         when 'b'
-          moves_for_bishop(piece.position)
+          moves_for_bishop(piece)
         when 'q'
           moves_for_queen(piece.position)
         when 'k'
@@ -176,17 +194,32 @@ module ChessValidator
         moves_up(position) + moves_down(position) + moves_left(position) + moves_right(position)
       end
 
-      def moves_for_bishop(position)
-        top_right = extract_diagonals(moves_right(position).zip(moves_up(position)))
-        top_left = extract_diagonals(moves_left(position).zip(moves_up(position)))
-        bottom_left = extract_diagonals(moves_left(position).zip(moves_down(position)))
-        bottom_right = extract_diagonals(moves_right(position).zip(moves_down(position)))
-
+      def moves_for_bishop(piece)
+        top_right = moves_diagonal(piece.square_index - 7, 7, 'up', 7)
+        top_left = moves_diagonal(piece.square_index - 9, 9, 'up', 0)
+        bottom_left = moves_diagonal(piece.square_index + 7, 7, 'down', 58)
+        bottom_right = moves_diagonal(piece.square_index + 9, 9, 'down', 65)
         top_right + top_left + bottom_left + bottom_right
       end
 
-      def moves_for_queen(position)
-        moves_for_rook(position) + moves_for_bishop(position)
+      def moves_diagonal(index, count, direction, max)
+        possible_moves = []
+        if direction == 'up'
+          while index > max do
+            possible_moves << SQUARE_KEY[index]
+            index -= count
+          end
+        else
+          while index < max do
+            possible_moves << SQUARE_KEY[index]
+            index += count
+          end
+        end
+        possible_moves
+      end
+
+      def moves_for_queen(piece)
+        moves_for_rook(piece.position) + moves_for_bishop(piece)
       end
 
       def spaces_near_king(position)

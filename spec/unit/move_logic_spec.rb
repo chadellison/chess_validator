@@ -49,7 +49,8 @@ RSpec.describe ChessValidator::MoveLogic do
       expected = ['e5', 'f6', 'g7', 'h8', 'c5', 'b6', 'a7', 'c3', 'b2', 'a1',
                   'e3', 'f2', 'g1']
 
-      expect(ChessValidator::MoveLogic.moves_for_bishop('d4')).to eq expected
+      piece = ChessValidator::Piece.new('b', 36)
+      expect(ChessValidator::MoveLogic.moves_for_bishop(piece)).to eq expected
     end
   end
 
@@ -65,7 +66,9 @@ RSpec.describe ChessValidator::MoveLogic do
                   'e4', 'f4', 'g4', 'h4', 'e5', 'f6', 'g7', 'h8', 'c5', 'b6',
                   'a7', 'c3', 'b2', 'a1', 'e3', 'f2', 'g1']
 
-      expect(ChessValidator::MoveLogic.moves_for_queen('d4')).to eq expected
+      piece = ChessValidator::Piece.new('q', 36)
+
+      expect(ChessValidator::MoveLogic.moves_for_queen(piece)).to eq expected
     end
   end
 
@@ -411,6 +414,11 @@ RSpec.describe ChessValidator::MoveLogic do
     end
   end
 
+  describe 'handle_king' do
+    context 'when the king has not moved two' do
+
+    end
+  end
 
   # describe 'king_is_safe?' do
   #   context 'when the king is not in check' do
