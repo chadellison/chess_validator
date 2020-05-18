@@ -1,5 +1,5 @@
 require_relative './constants/square_key'
-
+require 'pry'
 module ChessValidator
   class MoveLogic
     class << self
@@ -130,6 +130,7 @@ module ChessValidator
         else
           horizontal_moves = moves_left(position, (destination[0].ord + 1).chr)
         end
+        # left or right
 
         difference = (position[1].to_i - destination[1].to_i).abs - 1
         if position[1] < destination[1]
@@ -137,6 +138,7 @@ module ChessValidator
         else
           vertical_moves = moves_down(position, (difference - position[1].to_i).abs)
         end
+
         !(extract_diagonals(horizontal_moves.zip(vertical_moves)) & occupied_spaces)
           .empty?
       end
@@ -194,32 +196,34 @@ module ChessValidator
         moves_up(position) + moves_down(position) + moves_left(position) + moves_right(position)
       end
 
-      def moves_for_bishop(piece)
-        top_right = moves_diagonal(piece.square_index - 7, 7, 'up', 7)
-        top_left = moves_diagonal(piece.square_index - 9, 9, 'up', 0)
-        bottom_left = moves_diagonal(piece.square_index + 7, 7, 'down', 58)
-        bottom_right = moves_diagonal(piece.square_index + 9, 9, 'down', 65)
+      def moves_for_bishop(position)
+        top_right = moves_diagonal('up', 'right', position)
+        top_left = moves_diagonal('up', 'left', position)
+        bottom_left = moves_diagonal('down', 'left', position)
+        bottom_right = moves_diagonal('down', 'right', position)
+
         top_right + top_left + bottom_left + bottom_right
       end
 
-      def moves_diagonal(index, count, direction, max)
+      def moves_diagonal(vertical, horizontal, position)
+        column = position[0]
+        row = position[1]
         possible_moves = []
-        if direction == 'up'
-          while index > max do
-            possible_moves << SQUARE_KEY[index]
-            index -= count
-          end
-        else
-          while index < max do
-            possible_moves << SQUARE_KEY[index]
-            index += count
-          end
+
+        while column > 'a' && column < 'h' && row > '1' && row < '8' do
+          column = horizontal == 'left' ? previous_char(column) : column.next
+          row = vertical == 'up' ? row.next : previous_char(row)
+          possible_moves << column + row
         end
         possible_moves
       end
 
-      def moves_for_queen(piece)
-        moves_for_rook(piece.position) + moves_for_bishop(piece)
+      def previous_char(char)
+        (char.ord - 1).chr
+      end
+
+      def moves_for_queen(position)
+        moves_for_rook(position) + moves_for_bishop(position)
       end
 
       def spaces_near_king(index)

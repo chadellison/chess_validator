@@ -49,8 +49,15 @@ RSpec.describe ChessValidator::MoveLogic do
       expected = ['e5', 'f6', 'g7', 'h8', 'c5', 'b6', 'a7', 'c3', 'b2', 'a1',
                   'e3', 'f2', 'g1']
 
-      piece = ChessValidator::Piece.new('b', 36)
-      expect(ChessValidator::MoveLogic.moves_for_bishop(piece)).to eq expected
+      expect(ChessValidator::MoveLogic.moves_for_bishop('d4')).to eq expected
+    end
+
+    context 'when the bishop is on c7' do
+      it 'returns an array of all possible moves for a bishop in a given position' do
+        expected = ['b8', 'd8', 'b6', 'a5', 'd6', 'e5', 'f4', 'g3', 'h2'].sort
+
+        expect(ChessValidator::MoveLogic.moves_for_bishop('c7').sort).to eq expected
+      end
     end
   end
 
@@ -66,9 +73,7 @@ RSpec.describe ChessValidator::MoveLogic do
                   'e4', 'f4', 'g4', 'h4', 'e5', 'f6', 'g7', 'h8', 'c5', 'b6',
                   'a7', 'c3', 'b2', 'a1', 'e3', 'f2', 'g1']
 
-      piece = ChessValidator::Piece.new('q', 36)
-
-      expect(ChessValidator::MoveLogic.moves_for_queen(piece)).to eq expected
+      expect(ChessValidator::MoveLogic.moves_for_queen('d4')).to eq expected
     end
   end
 
