@@ -193,7 +193,7 @@ module ChessValidator
       end
 
       def moves_for_rook(position)
-        moves_up(position) + moves_down(position) + moves_left(position) + moves_right(position)
+        moves_horizontal(position) + moves_vertical(position)
       end
 
       def moves_for_bishop(position)
@@ -250,8 +250,8 @@ module ChessValidator
 
       def moves_for_pawn(pawn)
         position = pawn.position
-        left_letter = (position[0].ord - 1).chr
-        right_letter = (position[0].ord + 1).chr
+        left_letter = previous_char(position[0])
+        right_letter = position[0].next
 
 
         up_count = position[1].to_i + 1
@@ -288,6 +288,32 @@ module ChessValidator
         end.compact
       end
 
+      def moves_horizontal(position)
+        possible_moves = []
+        column = 'a'
+        row = position[1]
+
+        8.times do
+          possible_moves << column + row unless column == position[0]
+          column = column.next
+        end
+
+        possible_moves
+      end
+
+      def moves_vertical(position)
+        possible_moves = []
+        column = position[0]
+        row = '1'
+
+        8.times do
+          possible_moves << column + row unless row == position[1]
+          row = row.next
+        end
+
+        possible_moves
+      end
+
       def moves_up(position, count = 8)
         possible_moves = []
         row = position[1].to_i
@@ -315,7 +341,7 @@ module ChessValidator
         column = position[0]
 
         while column > letter
-          column = (column.ord - 1).chr
+          column = previous_char(column)
 
           possible_moves << (column + position[1])
         end

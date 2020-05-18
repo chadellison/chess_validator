@@ -6,9 +6,9 @@ RSpec.describe ChessValidator::MoveLogic do
   describe 'moves_for_rook' do
     it 'returns an array of all possible moves for a rook in a given position' do
       expected = ['d5', 'd6', 'd7', 'd8', 'd3', 'd2', 'd1', 'c4', 'b4', 'a4',
-                  'e4', 'f4', 'g4', 'h4']
+                  'e4', 'f4', 'g4', 'h4'].sort
 
-      expect(ChessValidator::MoveLogic.moves_for_rook('d4')).to eq expected
+      expect(ChessValidator::MoveLogic.moves_for_rook('d4').sort).to eq expected
     end
   end
 
@@ -71,9 +71,9 @@ RSpec.describe ChessValidator::MoveLogic do
     it 'returns an array of all possible moves for a queen in a given position' do
       expected = ['d5', 'd6', 'd7', 'd8', 'd3', 'd2', 'd1', 'c4', 'b4', 'a4',
                   'e4', 'f4', 'g4', 'h4', 'e5', 'f6', 'g7', 'h8', 'c5', 'b6',
-                  'a7', 'c3', 'b2', 'a1', 'e3', 'f2', 'g1']
+                  'a7', 'c3', 'b2', 'a1', 'e3', 'f2', 'g1'].sort
 
-      expect(ChessValidator::MoveLogic.moves_for_queen('d4')).to eq expected
+      expect(ChessValidator::MoveLogic.moves_for_queen('d4').sort).to eq expected
     end
   end
 
