@@ -122,173 +122,160 @@ RSpec.describe ChessValidator::MoveLogic do
   end
 
   describe 'vertical_collision?' do
-    it 'returns true when there is a piece above in the path of the destination' do
-      actual = ChessValidator::MoveLogic.vertical_collision?('a1', 'a8', ['a4'])
-      expect(actual).to eq true
+    context 'when there is a piece above in the path of the destination' do
+      it 'returns true' do
+        actual = ChessValidator::MoveLogic.vertical_collision?('a1', 'a8', ['a4'])
+        expect(actual).to eq true
+      end
+    end
+    context 'when there is a piece below in the path of the destination' do
+      it 'returns true' do
+        actual = ChessValidator::MoveLogic.vertical_collision?('b8', 'b1', ['b4'])
+        expect(actual).to eq true
+      end
     end
 
-    it 'returns true when there is a piece below in the path of the destination' do
-      actual = ChessValidator::MoveLogic.vertical_collision?('b8', 'b1', ['b4'])
-      expect(actual).to eq true
-    end
-
-    it 'returns false when there is no piece in the path of the destination' do
-      actual = ChessValidator::MoveLogic.vertical_collision?('b8', 'b7', ['b4'])
-      expect(actual).to eq false
+    context 'when there is no piece in the path of the destination' do
+      it 'returns false' do
+        actual = ChessValidator::MoveLogic.vertical_collision?('b8', 'b7', ['b4'])
+        expect(actual).to eq false
+      end
     end
   end
 
-  # describe 'horizontal_collision?' do
-  #   context 'when a piece is in the way of the move path of another' do
-  #     let(:piece) {
-  #       Piece.new(position: 'a1', piece_type: 'rook')
-  #     }
-  #
-  #     it 'returns true' do
-  #       occupied_spaces = ['d1']
-  #       expect(piece.horizontal_collision?('e1', occupied_spaces)).to be true
-  #     end
-  #   end
+  describe 'horizontal_collision?' do
+    context 'when a piece is in the way of the move path from left to right' do
+      it 'returns true' do
+        occupied_spaces = ['d1']
+        expect(ChessValidator::MoveLogic.horizontal_collision?('a1', 'e1', occupied_spaces)).to be true
+      end
+    end
+    context 'when a piece is in the way of the move path from right to left' do
+      it 'returns true' do
+        occupied_spaces = ['d1']
+        expect(ChessValidator::MoveLogic.horizontal_collision?('e1', 'a1', occupied_spaces)).to be true
+      end
+    end
 
-  #   context 'when a piece is not in the way of another' do
-  #     let(:piece) {
-  #       Piece.new(position: 'f1', piece_type: 'rook')
-  #     }
-  #
-  #     it 'returns false' do
-  #       occupied_spaces = ['d1']
-  #       expect(piece.horizontal_collision?('e1', occupied_spaces)).to be false
-  #     end
-  #   end
-  # end
-  #
-  # describe 'diagonal_collision?' do
-  #   before do
-  #     allow_any_instance_of(Game).to receive(:add_pieces)
-  #   end
-  #
-  #   context 'when there is a diagonal collision' do
-  #     it 'returns true' do
-  #       game = Game.create
-  #       piece = Piece.new(position: 'e3')
-  #
-  #       expect(piece.diagonal_collision?('a7', ['b6'])).to be true
-  #       expect(piece.diagonal_collision?('h6', ['g5'])).to be true
-  #       expect(piece.diagonal_collision?('c1', ['d2'])).to be true
-  #       expect(piece.diagonal_collision?('g1', ['f2'])).to be true
-  #     end
-  #   end
-  #
-  #   context 'when there is not a diagonal collision' do
-  #     it 'returns true' do
-  #       game = Game.create
-  #       piece = Piece.new(position: 'c3')
-  #
-  #       expect(piece.diagonal_collision?('a1', [])).to be false
-  #       expect(piece.diagonal_collision?('f6', ['e6'])).to be false
-  #       expect(piece.diagonal_collision?('b4', ['b4'])).to be false
-  #     end
-  #   end
-  # end
-  #
-  # describe 'valid_move_path' do
-  #   context 'when the move path is valid for a vertical move' do
-  #     it 'returns true' do
-  #       piece = Piece.new(color: 'white', position: 'a3', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('a7', ['a8', 'a2'])).to be true
-  #     end
-  #
-  #     it 'returns true' do
-  #       piece = Piece.new(color: 'white', position: 'a7', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('a3', ['a8', 'a2'])).to be true
-  #     end
-  #   end
-  #
-  #   context 'when the move path not is valid for a vertical move' do
-  #     it 'returns false' do
-  #       piece = Piece.new(color: 'white', position: 'a3', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('a7', ['a8', 'a2', 'a5'])).to be false
-  #     end
-  #
-  #     it 'returns false' do
-  #       piece = Piece.new(color: 'white', position: 'a7', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('a3', ['a8', 'a2', 'a5'])).to be false
-  #     end
-  #   end
-  #
-  #   context 'when the move path is valid for a horizontal move' do
-  #     it 'returns true' do
-  #       piece = Piece.new(color: 'white', position: 'a3', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('e3', ['a8', 'a2'])).to be true
-  #     end
-  #
-  #     it 'returns true' do
-  #       piece = Piece.new(color: 'white', position: 'e7', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('a7', ['a8', 'a2'])).to be true
-  #     end
-  #   end
-  #
-  #   context 'when the move path not is valid for a vertical move' do
-  #     it 'returns false' do
-  #       piece = Piece.new(color: 'white', position: 'a3', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('e3', ['a8', 'c3', 'a5'])).to be false
-  #     end
-  #
-  #     it 'returns false' do
-  #       piece = Piece.new(color: 'white', position: 'a3', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('e3', ['a8', 'c3', 'a5'])).to be false
-  #     end
-  #   end
-  #
-  #   context 'when the move path is valid for a diagonal move' do
-  #     it 'returns true' do
-  #       piece = Piece.new(color: 'white', position: 'd4', piece_type: 'bishop')
-  #       expect(piece.valid_move_path?('f6', ['a8', 'a2'])).to be true
-  #     end
-  #
-  #     it 'returns true' do
-  #       piece = Piece.new(color: 'white', position: 'f6', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('d4', ['a8', 'a2'])).to be true
-  #     end
-  #   end
-  #
-  #   context 'when the move path is valid for a diagonal move' do
-  #     it 'returns true' do
-  #       piece = Piece.new(color: 'white', position: 'f3', piece_type: 'bishop')
-  #       expect(piece.valid_move_path?('d5', ['a8', 'a2'])).to be true
-  #     end
-  #
-  #     it 'returns true' do
-  #       piece = Piece.new(color: 'white', position: 'd5', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('f3', ['a8', 'a2'])).to be true
-  #     end
-  #   end
-  #
-  #   context 'when the move path not is valid for a diagonal move' do
-  #     it 'returns false' do
-  #       piece = Piece.new(color: 'white', position: 'f3', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('d5', ['a8', 'e4', 'a5'])).to be false
-  #     end
-  #
-  #     it 'returns false' do
-  #       piece = Piece.new(color: 'white', position: 'a3', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('e7', ['a8', 'd6', 'a5'])).to be false
-  #     end
-  #   end
-  #
-  #   context 'when the piece is a knight or a king' do
-  #     it 'returns true' do
-  #       piece = Piece.new(color: 'white', position: 'f3', piece_type: 'knight')
-  #       expect(piece.valid_move_path?('d4', ['a8', 'e4', 'a5'])).to be true
-  #     end
-  #
-  #     it 'returns false' do
-  #       piece = Piece.new(color: 'white', position: 'a3', piece_type: 'rook')
-  #       expect(piece.valid_move_path?('a4', ['a8', 'd6', 'a5'])).to be true
-  #     end
-  #   end
-  # end
-  #
+    context 'when a piece is not in the way of another' do
+      it 'returns false' do
+        occupied_spaces = ['d1']
+        expect(ChessValidator::MoveLogic.horizontal_collision?('f1', 'e1', occupied_spaces)).to be false
+      end
+    end
+  end
+
+  describe 'diagonal_collision?' do
+    context 'when there is a diagonal collision' do
+      it 'returns true' do
+        expect(ChessValidator::MoveLogic.diagonal_collision?('e3', 'a7', ['b6'])).to be true
+        expect(ChessValidator::MoveLogic.diagonal_collision?('e3', 'h6', ['g5'])).to be true
+        expect(ChessValidator::MoveLogic.diagonal_collision?('e3', 'c1', ['d2'])).to be true
+        expect(ChessValidator::MoveLogic.diagonal_collision?('e3', 'g1', ['f2'])).to be true
+      end
+    end
+
+    context 'when there is not a diagonal collision' do
+      it 'returns true' do
+        expect(ChessValidator::MoveLogic.diagonal_collision?('e3', 'a1', [])).to be false
+        expect(ChessValidator::MoveLogic.diagonal_collision?('e3', 'f6', ['e6'])).to be false
+        expect(ChessValidator::MoveLogic.diagonal_collision?('e3', 'b4', ['b4'])).to be false
+      end
+    end
+  end
+
+  describe 'valid_move_path?' do
+    context 'when the move path is valid for a vertical move' do
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('R', 41)
+
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'a7', ['a8', 'a2'])).to be true
+      end
+
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('R', 9)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'a3', ['a8', 'a2'])).to be true
+      end
+    end
+
+    context 'when the move path not is valid for a vertical move' do
+      it 'returns false' do
+        piece = ChessValidator::Piece.new('R', 41)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'a7', ['a8', 'a2', 'a5'])).to be false
+      end
+
+      it 'returns false' do
+        piece = ChessValidator::Piece.new('R', 9)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'a3', ['a8', 'a2', 'a5'])).to be false
+      end
+    end
+
+    context 'when the move path is valid for a horizontal move' do
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('R', 41)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'e3', ['a8', 'a2'])).to be true
+      end
+
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('R', 13)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'a7', ['a8', 'a2'])).to be true
+      end
+    end
+
+    context 'when the move path not is valid for a vertical move' do
+      it 'returns false' do
+        piece = ChessValidator::Piece.new('R', 41)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'e3', ['a8', 'c3', 'a5'])).to be false
+      end
+    end
+
+    context 'when the move path is valid for a diagonal move' do
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('B', 36)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'f6', ['a8', 'a2'])).to be true
+      end
+
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('R', 22)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'd4', ['a8', 'a2'])).to be true
+      end
+
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('B', 46)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'd5', ['a8', 'a2'])).to be true
+      end
+
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('R', 28)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'f3', ['a8', 'a2'])).to be true
+      end
+    end
+
+    context 'when the move path not is valid for a diagonal move' do
+      it 'returns false' do
+        piece = ChessValidator::Piece.new('R', 46)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'd5', ['a8', 'e4', 'a5'])).to be false
+      end
+
+      it 'returns false' do
+        piece = ChessValidator::Piece.new('R', 41)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'e7', ['a8', 'd6', 'a5'])).to be false
+      end
+    end
+
+    context 'when the piece is a knight or a king' do
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('N', 46)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'd4', ['a8', 'e4', 'a5'])).to be true
+      end
+
+      it 'returns false' do
+        piece = ChessValidator::Piece.new('R', 41)
+        expect(ChessValidator::MoveLogic.valid_move_path?(piece, 'a4', ['a8', 'd6', 'a5'])).to be true
+      end
+    end
+  end
+
   # describe 'valid_destination' do
   #   context 'when the destination is a different color than the piece moving' do
   #     let(:game) { Game.create }

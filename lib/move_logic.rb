@@ -39,8 +39,11 @@ module ChessValidator
           if (position[1].to_i - move[1].to_i).abs == 1
             empty_square?(board, move)
           else
-
-            empty_square?(board, move)
+            occupied_spaces = []
+            board.values.each do |piece|
+              occupied_spaces << piece.position if piece
+            end
+            valid_move_path?(piece, move, occupied_spaces) && empty_square?(board, move)
           end
         else
         end
@@ -51,55 +54,53 @@ module ChessValidator
       end
 
       def valid_move_path?(piece, move, occupied_spaces)
+        position = piece.position
         if piece.piece_type.downcase == 'n'
           true
         elsif position[0] == move[0]
           !vertical_collision?(piece.position, move, occupied_spaces)
         elsif position[1] == move[1]
-          !horizontal_collision?(move, occupied_spaces)
+          !horizontal_collision?(piece.position, move, occupied_spaces)
         else
-          !diagonal_collision?(move, occupied_spaces)
+          !diagonal_collision?(piece.position, move, occupied_spaces)
         end
       end
 
-      def vertical_collision?(position, move, occupied_spaces)
+      def vertical_collision?(position, destination, occupied_spaces)
         row = position[1].to_i
-        difference = (row - move[1].to_i).abs - 1
+        difference = (row - destination[1].to_i).abs - 1
 
-        spaces = []
-        if row > move[1].to_i
-          difference.times { |n| spaces << move[0] + (position[1].to_i - (n + 1)).to_s }
+        if row > destination[1].to_i
+          !(moves_down(position, (difference - row).abs) & occupied_spaces).empty?
         else
-          difference.times { |n| spaces << move[0] + (position[1].to_i + (n + 1)).to_s }
+          !(moves_up(position, difference + row) & occupied_spaces).empty?
         end
-
-        !(occupied_spaces & spaces).empty?
       end
 
-      def horizontal_collision?(destination, occupied_spaces)
+      def horizontal_collision?(position, destination, occupied_spaces)
         if position[0] > destination[0]
-          (moves_left((destination[0].ord + 1).chr) & occupied_spaces).present?
+          !(moves_left(position, (destination[0].ord + 1).chr) & occupied_spaces).empty?
         else
-          (moves_right((destination[0].ord - 1).chr) & occupied_spaces).present?
+          !(moves_right(position, (destination[0].ord - 1).chr) & occupied_spaces).empty?
         end
       end
 
-      # def diagonal_collision?(destination, occupied_spaces)
-      #   if position[0] < destination[0]
-      #     horizontal_moves = moves_right((destination[0].ord - 1).chr)
-      #   else
-      #     horizontal_moves = moves_left((destination[0].ord + 1).chr)
-      #   end
-      #
-      #   difference = (position[1].to_i - destination[1].to_i).abs - 1
-      #   if position[1] < destination[1]
-      #     vertical_moves = moves_up(difference + position[1].to_i)
-      #   else
-      #     vertical_moves = moves_down((difference - position[1].to_i).abs)
-      #   end
-      #   (extract_diagonals(horizontal_moves.zip(vertical_moves)) & occupied_spaces)
-      #     .present?
-      # end
+      def diagonal_collision?(position, destination, occupied_spaces)
+        if position[0] < destination[0]
+          horizontal_moves = moves_right(position, (destination[0].ord - 1).chr)
+        else
+          horizontal_moves = moves_left(position, (destination[0].ord + 1).chr)
+        end
+
+        difference = (position[1].to_i - destination[1].to_i).abs - 1
+        if position[1] < destination[1]
+          vertical_moves = moves_up(position, difference + position[1].to_i)
+        else
+          vertical_moves = moves_down(position, (difference - position[1].to_i).abs)
+        end
+        !(extract_diagonals(horizontal_moves.zip(vertical_moves)) & occupied_spaces)
+          .empty?
+      end
 
       def pinned?(piece, board, fen)
         turn = fen.active
@@ -246,33 +247,33 @@ module ChessValidator
         end.compact
       end
 
-      def moves_up(position)
+      def moves_up(position, count = 8)
         possible_moves = []
         row = position[1].to_i
 
-        while row < 8
+        while row < count
           row += 1
           possible_moves << (position[0] + row.to_s)
         end
         possible_moves
       end
 
-      def moves_down(position)
+      def moves_down(position, count = 1)
         possible_moves = []
         row = position[1].to_i
 
-        while row > 1
+        while row > count
           row -= 1
           possible_moves << (position[0] + row.to_s)
         end
         possible_moves
       end
 
-      def moves_left(position)
+      def moves_left(position, letter = 'a')
         possible_moves = []
         column = position[0]
 
-        while column > 'a'
+        while column > letter
           column = (column.ord - 1).chr
 
           possible_moves << (column + position[1])
@@ -280,11 +281,11 @@ module ChessValidator
         possible_moves
       end
 
-      def moves_right(position)
+      def moves_right(position, letter = 'h')
         possible_moves = []
         column = position[0]
 
-        while column < 'h'
+        while column < letter
           column = column.next
 
           possible_moves << (column + position[1])
