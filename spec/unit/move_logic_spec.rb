@@ -276,80 +276,34 @@ RSpec.describe ChessValidator::MoveLogic do
     end
   end
 
-  # describe 'valid_destination' do
-  #   context 'when the destination is a different color than the piece moving' do
-  #     let(:game) { Game.create }
-  #
-  #     it 'returns true' do
-  #
-  #       white_piece = Piece.new(color: 'white', position: 'a3', piece_type: 'rook', game_id: game.id)
-  #
-  #       black_piece = Piece.new(color: 'black', position: 'a4', piece_type: 'rook')
-  #
-  #       game.pieces << white_piece
-  #       game.pieces << black_piece
-  #
-  #       expect(white_piece.valid_destination?('a4', game.pieces)).to be true
-  #     end
-  #   end
-  #
-  #   context 'when the destination is empty' do
-  #     let(:game) { Game.create }
-  #     it 'returns true' do
-  #       piece_one = Piece.new(
-  #         color: 'white',
-  #         position: 'a3',
-  #         piece_type: 'rook',
-  #         position_index: 25,
-  #         game_id: game.id
-  #       )
-  #       piece_two = Piece.new(
-  #         color: 'black',
-  #         position: 'a7',
-  #         piece_type: 'rook',
-  #         position_index: 32,
-  #         game_id: game.id
-  #       )
-  #
-  #       game.pieces << piece_one
-  #       game.pieces << piece_two
-  #
-  #       expect(piece_one.valid_destination?('a4', game.pieces)).to be true
-  #     end
-  #   end
-  #
-  #   context 'when the destination is occupied by an allied piece' do
-  #     let(:game) { Game.create }
-  #
-  #     it 'returns false' do
-  #       piece = game.find_piece_by_index(17)
-  #
-  #       game_piece = game.find_piece_by_index(9)
-  #
-  #       game_piece.color = 'white'
-  #       game_piece.position = 'a7'
-  #       game_piece.piece_type = 'rook'
-  #       game_piece.position_index = 32
-  #
-  #       expect(piece.valid_destination?('a7', game.pieces)).to be false
-  #     end
-  #   end
-  #
-  #   context 'when the destination is the opponent king' do
-  #     let(:game) {
-  #       Game.create
-  #     }
-  #
-  #     it 'returns true' do
-  #       piece = game.find_piece_by_index(26)
-  #       game.find_piece_by_index(5).position = 'd6'
-  #       piece.position = 'e4'
-  #
-  #       expect(piece.valid_destination?('d6', game.pieces)).to be true
-  #     end
-  #   end
-  # end
-  #
+  describe 'valid_destination' do
+    context 'when the destination is a different color than the piece moving' do
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('R', 41)
+        enemy_piece = ChessValidator::Piece.new('r', 33)
+        board = {33 => enemy_piece, 41 => piece }
+        expect(ChessValidator::MoveLogic.valid_destination?(piece, board, 'a4')).to be true
+      end
+    end
+
+    context 'when the destination is empty' do
+      it 'returns true' do
+        piece = ChessValidator::Piece.new('R', 41)
+        board = { 41 => piece }
+        expect(ChessValidator::MoveLogic.valid_destination?(piece, board, 'a4')).to be true
+      end
+    end
+
+    context 'when the destination is occupied by an allied piece' do
+      it 'returns false' do
+        piece = ChessValidator::Piece.new('R', 41)
+        ally_piece = ChessValidator::Piece.new('R', 33)
+        board = {33 => ally_piece, 41 => piece }
+        expect(ChessValidator::MoveLogic.valid_destination?(piece, board, 'a4')).to be false
+      end
+    end
+  end
+
   # describe 'king_is_safe?' do
   #   context 'when the king is not in check' do
   #     let(:game) {

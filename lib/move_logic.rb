@@ -21,7 +21,7 @@ module ChessValidator
         when 'k'
           handle_king
         when 'p'
-          handle_pawn
+          handle_pawn(piece, board, move, fen)
         when 'n'
         else
           # valid_move_path
@@ -34,7 +34,9 @@ module ChessValidator
 
       end
 
-      def handle_pawn(position, board, move, fen)
+      def handle_pawn(piece, board, move, fen)
+        position = piece.position
+
         if position[0] == move[0]
           if (position[1].to_i - move[1].to_i).abs == 1
             empty_square?(board, move)
@@ -46,7 +48,22 @@ module ChessValidator
             valid_move_path?(piece, move, occupied_spaces) && empty_square?(board, move)
           end
         else
+          target_piece = find_piece(board, position)
+          (target_piece && target_piece.color != piece.color) || move == fen.en_pessant
         end
+      end
+
+      def valid_destination?(piece, board, move)
+        target_piece = find_piece(board, move)
+        if target_piece
+          target_piece.color != piece.color
+        else
+          true
+        end
+      end
+
+      def find_piece(board, position)
+        board.values.detect { |piece| piece.position == position }
       end
 
       def empty_square?(board, move)
