@@ -106,22 +106,40 @@ module ChessValidator
       end
 
       def vertical_collision?(position, destination, occupied_spaces)
-        row = position[1].to_i
-        difference = (row - destination[1].to_i).abs - 1
+        start_index = position[1]
+        end_index = destination[1]
 
-        if row > destination[1].to_i
-          !(moves_down(position, (difference - row).abs) & occupied_spaces).empty?
-        else
-          !(moves_up(position, difference + row) & occupied_spaces).empty?
+        if start_index > end_index
+          start_index = destination[1]
+          end_index = position[1]
         end
+
+        row_pieces = occupied_spaces.filter do |space|
+          space[0] == position[0] && space[1] > start_index && space[1] < end_index
+        end
+
+        !row_pieces.empty?
       end
 
       def horizontal_collision?(position, destination, occupied_spaces)
-        if position[0] > destination[0]
-          !(moves_left(position, (destination[0].ord + 1).chr) & occupied_spaces).empty?
-        else
-          !(moves_right(position, (destination[0].ord - 1).chr) & occupied_spaces).empty?
+        # if position[0] > destination[0]
+        #   !(moves_left(position, (destination[0].ord + 1).chr) & occupied_spaces).empty?
+        # else
+        #   !(moves_right(position, (destination[0].ord - 1).chr) & occupied_spaces).empty?
+        # end
+        start_index = position[0]
+        end_index = destination[0]
+
+        if start_index > end_index
+          start_index = destination[0]
+          end_index = position[0]
         end
+
+        row_pieces = occupied_spaces.filter do |space|
+          space[1] == position[1] && space[0] > start_index && space[0] < end_index
+        end
+
+        !row_pieces.empty?
       end
 
       def diagonal_collision?(position, destination, occupied_spaces)
