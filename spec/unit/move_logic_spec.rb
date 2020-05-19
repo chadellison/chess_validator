@@ -590,4 +590,16 @@ RSpec.describe ChessValidator::MoveLogic do
       end
     end
   end
+
+  describe 'valid_move?' do
+
+  end
+
+  describe 'find_next_moves' do
+
+  end
+
+  describe 'load_valid_moves' do
+
+  end
 end

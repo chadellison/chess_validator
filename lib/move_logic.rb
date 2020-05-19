@@ -7,9 +7,10 @@ module ChessValidator
         fen = PGN::FEN.new(fen_notation)
         board = BoardLogic.build_board(fen)
 
-        board.each do |square, piece|
-          load_valid_moves(board, piece, fen)
-        end
+        pieces = board.values.map do |piece|
+          load_valid_moves(board, piece, fen) if piece
+        end.compact
+        # return pieces
       end
 
       def load_valid_moves(board, piece, fen)
@@ -19,17 +20,27 @@ module ChessValidator
       end
 
       def valid_move?(piece, board, move, fen)
+        occupied_spaces = []
+        board.values.each { |p| occupied_spaces << p.position if p }
         case piece.piece_type.downcase
         when 'k'
           handle_king(piece, board, move, fen)
         when 'p'
           handle_pawn(piece, board, move, fen)
         else
-
-          # valid_move_path
-          # valid_destination
-          # king_is_safe?
+          valid_move_path?(piece, king_move, occupied_spaces) &&
+          valid_destination?(piece, board, move) &&
+          king_will_be_safe?(piece, board, move)
         end
+      end
+
+      def king_will_be_safe?(piece, board, move)
+        index = INDEX_KEY[move]
+        new_board = board.clone
+        new_board[piece.index] = nil
+        new_board[index] = piece
+        king = board.values.detect { |p| p.piece_type.downcase == 'k' && p.color == piece.color }
+        king_is_safe?(king.color, new_board, king.position)
       end
 
       def handle_king(king, board, move, fen)
@@ -66,10 +77,6 @@ module ChessValidator
           end.size > 0
         end
       end
-
-      # def pawn_threat?(king, board)
-      #
-      # end
 
       def handle_pawn(piece, board, move, fen)
         position = piece.position
@@ -174,20 +181,7 @@ module ChessValidator
             enemy_queen = piece if type == 'q'
           end
         end
-
-        # if any?
-        # king is on same row? && enemy rook or queen shares && no pieces in between piece and king
-        # king is on same column && enemy rook or queen shares && no pieces in between piece and king
-        # king is on same diagonal && enemy bishop or queen shares && no pieces in between piece and king
       end
-
-      def will_expose_king?
-        # pinned? && tyring to move out of pin...
-      end
-
-      # def king_is_safe?
-      # see if any enemy pieces are attacking current piece and if so, if the king is in the path
-      # end
 
       def moves_for_piece(piece)
         case piece.piece_type.downcase
