@@ -28,7 +28,7 @@ module ChessValidator
         when 'p'
           handle_pawn(piece, board, move, fen)
         else
-          valid_move_path?(piece, king_move, occupied_spaces) &&
+          valid_move_path?(piece, move, occupied_spaces) &&
           valid_destination?(piece, board, move) &&
           king_will_be_safe?(piece, board, move)
         end

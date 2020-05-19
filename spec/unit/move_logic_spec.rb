@@ -592,6 +592,70 @@ RSpec.describe ChessValidator::MoveLogic do
   end
 
   describe 'valid_move?' do
+    context 'when the piece type is k' do
+      it 'calls handle_king' do
+        king = ChessValidator::Piece.new('K', 35)
+        board = { 35 => king }
+        fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+        expect(ChessValidator::MoveLogic).to receive(:handle_king)
+          .with(king, board, 'f1', fen)
+
+        ChessValidator::MoveLogic.valid_move?(king, board, 'f1', fen)
+      end
+    end
+
+    context 'when the piece type is p' do
+      it 'calls handle_pawn' do
+        pawn = ChessValidator::Piece.new('p', 52)
+        board = { 52 => pawn }
+        fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+        expect(ChessValidator::MoveLogic).to receive(:handle_pawn)
+          .with(pawn, board, 'd4', fen)
+
+        ChessValidator::MoveLogic.valid_move?(pawn, board, 'd4', fen)
+      end
+    end
+
+    context 'when the piece type is not k or p' do
+      it 'calls the correct methods' do
+        rook = ChessValidator::Piece.new('r', 43)
+        board = { 43 => rook }
+        occupied_spaces = ['c3']
+        fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+        expect(ChessValidator::MoveLogic).to receive(:valid_move_path?)
+          .with(rook, 'd3', occupied_spaces).and_return(true)
+        expect(ChessValidator::MoveLogic).to receive(:valid_destination?)
+          .with(rook, board, 'd3').and_return(true)
+        expect(ChessValidator::MoveLogic).to receive(:king_will_be_safe?)
+          .with(rook, board, 'd3').and_return(true)
+
+        actual = ChessValidator::MoveLogic.valid_move?(rook, board, 'd3', fen)
+
+        expect(actual).to be true
+      end
+    end
+
+    context 'when when one of the conditions is not met' do
+      it 'returns false' do
+        rook = ChessValidator::Piece.new('r', 43)
+        board = { 43 => rook }
+        occupied_spaces = ['c3']
+        fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+        allow(ChessValidator::MoveLogic).to receive(:valid_move_path?)
+          .with(rook, 'd3', occupied_spaces).and_return(false)
+
+        actual = ChessValidator::MoveLogic.valid_move?(rook, board, 'd3', fen)
+
+        expect(actual).to be false
+      end
+    end
+  end
+
+  describe 'king_will_be_safe?' do
 
   end
 
