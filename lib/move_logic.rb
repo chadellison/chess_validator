@@ -34,12 +34,37 @@ module ChessValidator
 
       def handle_king(king, board, move, fen)
         if (king.position[0].ord - move[0].ord).abs == 2
+          empty_b_square = true
+          if move[0] == 'c'
+            castle_code = 'q'
+            between = 'd' + move[1]
+            empty_b_square = empty_square?(board, 'b' + move[1])
+          else
+            castle_code = 'k'
+            between = 'f' + move[1]
+          end
+          (fen.castling.include?(castle_code) && king.color == 'b' || fen.castling.include?(castle_code.upcase) && king.color == 'w') &&
+          king_is_safe?(king.color, board, king.position) &&
+          king_is_safe?(king.color, board, between) &&
+          king_is_safe?(king.color, board, move) &&
+          board.values.none? { |piece| [between, move].include?(piece.position) } &&
+          empty_b_square
         else
-          valid_destination?(king, board, move) && king_is_safe?(king, board)
+          valid_destination?(king, board, move) && king_is_safe?(king.color, board, move)
         end
       end
 
-      def king_is_safe?(king, board)
+      def king_is_safe?(king_color, board, king_move)
+        occupied_spaces = []
+        pieces = board.values
+        pieces.each { |piece| occupied_spaces << piece.position if piece }
+
+        pieces.none? do |piece|
+          piece.color != king_color &&
+          moves_for_piece(piece).select do |move|
+            king_move == move && valid_move_path?(piece, king_move, occupied_spaces)
+          end.size > 0
+        end
         # any pawns on diags
         # nights
         # any bishops on diags
@@ -130,13 +155,11 @@ module ChessValidator
 
         move_path = []
         difference.times do |n|
-
           column = (position[0].ord + ((n + 1) * horizontal_multiplyer)).chr
           row = (position[1].to_i + ((n + 1) * vertical_multiplyer)).to_s
-
-
           move_path << column + row
         end
+
         !(move_path & occupied_spaces).empty?
       end
 
@@ -177,7 +200,7 @@ module ChessValidator
         when 'r'
           moves_for_rook(piece.position)
         when 'b'
-          moves_for_bishop(piece)
+          moves_for_bishop(piece.position)
         when 'q'
           moves_for_queen(piece.position)
         when 'k'

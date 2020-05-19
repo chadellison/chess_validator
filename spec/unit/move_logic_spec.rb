@@ -367,8 +367,215 @@ RSpec.describe ChessValidator::MoveLogic do
   end
 
   describe 'handle_king' do
-    context 'when the king has not moved two' do
+    context 'when the king has moved two' do
+      context 'when there are no enemy pieces attacking the king or the through check position' do
+        it 'returns true' do
+          king = ChessValidator::Piece.new('K', 61)
+          board = { 61 => king }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen)).to be true
+        end
+      end
+
+      context 'when there are enemy pieces attacking the king' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 61)
+          bishop = ChessValidator::Piece.new('b', 47)
+          board = { 61 => king, 47 => bishop }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen)).to be false
+        end
+      end
+
+      context 'when there are enemy pieces attacking the landing square of the king' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 61)
+          knight = ChessValidator::Piece.new('n', 42)
+          board = { 61 => king, 42 => knight }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen)).to be false
+        end
+      end
+
+      context 'when there are enemy pieces attacking the between check square' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 61)
+          knight = ChessValidator::Piece.new('n', 43)
+          board = { 61 => king, 43 => knight }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen)).to be false
+        end
+      end
+
+      context 'when the fen notation does not include the castle code' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 61)
+          board = { 61 => king }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen)).to be false
+        end
+      end
+
+      context 'when their is a piece on the b square of a queen side castle' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('k', 5)
+          knight = ChessValidator::Piece.new('n', 2)
+          board = { 5 => king, 2 => knight }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen)).to be false
+        end
+      end
+
+      context 'when their is a piece on the b square of a king side castle' do
+        it 'returns true' do
+          king = ChessValidator::Piece.new('k', 5)
+          knight = ChessValidator::Piece.new('n', 2)
+          board = { 5 => king, 2 => knight }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'g8', fen)).to be true
+        end
+      end
+
+      context 'when their is a piece in the way of the castle' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('k', 5)
+          rook = ChessValidator::Piece.new('r', 4)
+          board = { 5 => king, 4 => rook }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen)).to be false
+        end
+      end
+
+      context 'when their is an enemy piece in the way of the castle' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('k', 5)
+          knight = ChessValidator::Piece.new('N', 4)
+          board = { 5 => king, 4 => knight }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen)).to be false
+        end
+      end
+    end
+
+    context 'when the king has not moved two' do
+      context 'when there are no enemy pieces attacking the king' do
+        it 'returns true' do
+          king = ChessValidator::Piece.new('K', 35)
+          board = { 35 => king }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be true
+        end
+      end
+
+      context 'when there is an enemy pawn attacking the king' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 35)
+          pawn = ChessValidator::Piece.new('p', 18)
+          board = { 35 => king,  18 => pawn }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+        end
+      end
+
+      context 'when there is an enemy knight attacking the king' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 35)
+          knight = ChessValidator::Piece.new('n', 10)
+          board = { 35 => king, 10 => knight }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+        end
+      end
+
+      context 'when there is an enemy bishop attacking the king' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 35)
+          bishop = ChessValidator::Piece.new('b', 13)
+          board = { 35 => king, 13 => bishop }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+        end
+      end
+
+      context 'when there is an enemy rook attacking the king' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 35)
+          rook = ChessValidator::Piece.new('r', 31)
+          board = { 35 => king, 31 => rook }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+        end
+      end
+
+      context 'when there is an enemy queen attacking the king' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 35)
+          queen = ChessValidator::Piece.new('q', 31)
+          board = { 35 => king, 31 => queen }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+        end
+      end
+
+      context 'when there is an enemy king attacking the king' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 35)
+          enemy_king = ChessValidator::Piece.new('k', 19)
+          board = { 35 => king, 31 => enemy_king }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+        end
+      end
+
+      context 'when the square is occupied by an ally' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 35)
+          ally = ChessValidator::Piece.new('P', 27)
+          board = { 35 => king, 27 => ally }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+        end
+      end
+
+      context 'when the square is occupied by an enemy' do
+        it 'returns true' do
+          king = ChessValidator::Piece.new('K', 35)
+          enemy = ChessValidator::Piece.new('p', 27)
+          board = { 35 => king, 27 => enemy }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be true
+        end
+      end
+
+      context 'when the square is occupied by an enemy that is guarded' do
+        it 'returns false' do
+          king = ChessValidator::Piece.new('K', 35)
+          enemy = ChessValidator::Piece.new('p', 27)
+          guard = ChessValidator::Piece.new('n', 10)
+          board = { 35 => king, 27 => enemy, 10 => guard }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+        end
+      end
     end
   end
 
