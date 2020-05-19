@@ -65,12 +65,6 @@ module ChessValidator
             king_move == move && valid_move_path?(piece, king_move, occupied_spaces)
           end.size > 0
         end
-        # any pawns on diags
-        # nights
-        # any bishops on diags
-        # any rooks
-        # queens
-        # kings
       end
 
       # def pawn_threat?(king, board)
