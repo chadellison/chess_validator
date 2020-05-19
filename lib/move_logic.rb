@@ -8,7 +8,7 @@ module ChessValidator
         board = BoardLogic.build_board(fen)
 
         pieces = board.values.map do |piece|
-          load_valid_moves(board, piece, fen) if piece
+          load_valid_moves(board, piece, fen)
         end.compact
         # return pieces
       end
@@ -21,10 +21,10 @@ module ChessValidator
 
       def valid_move?(piece, board, move, fen)
         occupied_spaces = []
-        board.values.each { |p| occupied_spaces << p.position if p }
+        board.values.each { |p| occupied_spaces << p.position }
         case piece.piece_type.downcase
         when 'k'
-          handle_king(piece, board, move, fen)
+          handle_king(piece, board, move, fen, occupied_spaces)
         when 'p'
           handle_pawn(piece, board, move, fen)
         else
@@ -39,11 +39,18 @@ module ChessValidator
         new_board = board.clone
         new_board[piece.index] = nil
         new_board[index] = piece
-        king = board.values.detect { |p| p.piece_type.downcase == 'k' && p.color == piece.color }
-        king_is_safe?(king.color, new_board, king.position)
+        # does not handle en_passant edge case
+        occupied_spaces = []
+        king = nil
+        board.values.detect do |p|
+          king = p if p.piece_type.downcase == 'k' && p.color == piece.color
+          occupied_spaces << p.position
+        end
+        # new_board.values.each { |p|}
+        king_is_safe?(king.color, new_board, king.position, occupied_spaces)
       end
 
-      def handle_king(king, board, move, fen)
+      def handle_king(king, board, move, fen, occupied_spaces)
         if (king.position[0].ord - move[0].ord).abs == 2
           empty_b_square = true
           if move[0] == 'c'
@@ -55,22 +62,18 @@ module ChessValidator
             between = 'f' + move[1]
           end
           (fen.castling.include?(castle_code) && king.color == 'b' || fen.castling.include?(castle_code.upcase) && king.color == 'w') &&
-          king_is_safe?(king.color, board, king.position) &&
-          king_is_safe?(king.color, board, between) &&
-          king_is_safe?(king.color, board, move) &&
+          king_is_safe?(king.color, board, king.position, occupied_spaces) &&
+          king_is_safe?(king.color, board, between, occupied_spaces) &&
+          king_is_safe?(king.color, board, move, occupied_spaces) &&
           board.values.none? { |piece| [between, move].include?(piece.position) } &&
           empty_b_square
         else
-          valid_destination?(king, board, move) && king_is_safe?(king.color, board, move)
+          valid_destination?(king, board, move) && king_is_safe?(king.color, board, move, occupied_spaces)
         end
       end
 
-      def king_is_safe?(king_color, board, king_move)
-        occupied_spaces = []
-        pieces = board.values
-        pieces.each { |piece| occupied_spaces << piece.position if piece }
-
-        pieces.none? do |piece|
+      def king_is_safe?(king_color, board, king_move, occupied_spaces)
+        board.values.none? do |piece|
           piece.color != king_color &&
           moves_for_piece(piece).select do |move|
             king_move == move && valid_move_path?(piece, king_move, occupied_spaces)
@@ -95,7 +98,7 @@ module ChessValidator
         else
           occupied_spaces = []
           board.values.each do |piece|
-            occupied_spaces << piece.position if piece
+            occupied_spaces << piece.position
           end
           valid_move_path?(pawn, move, occupied_spaces) && empty_square?(board, move)
         end

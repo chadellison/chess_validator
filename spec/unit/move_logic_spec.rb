@@ -374,7 +374,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 61 => king }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen)).to be true
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen, ['e1'])).to be true
         end
       end
 
@@ -385,7 +385,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 61 => king, 47 => bishop }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen, ['e1', 'g3'])).to be false
         end
       end
 
@@ -396,7 +396,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 61 => king, 42 => knight }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen, ['e1', 'b3'])).to be false
         end
       end
 
@@ -407,7 +407,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 61 => king, 43 => knight }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen, ['e1', 'c3'])).to be false
         end
       end
 
@@ -417,7 +417,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 61 => king }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c1', fen, ['e1'])).to be false
         end
       end
 
@@ -428,7 +428,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 5 => king, 2 => knight }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen, ['e8', 'b8'])).to be false
         end
       end
 
@@ -439,7 +439,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 5 => king, 2 => knight }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'g8', fen)).to be true
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'g8', fen, ['e8', 'b8'])).to be true
         end
       end
 
@@ -450,7 +450,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 5 => king, 4 => rook }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen, ['e8', 'd8'])).to be false
         end
       end
 
@@ -461,7 +461,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 5 => king, 4 => knight }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen, ['e8', 'd8'])).to be false
         end
       end
 
@@ -473,7 +473,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 5 => king, 26 => bishop, 12 => knight }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen)).to be true
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c8', fen, ['e8', 'b5', 'd7'])).to be true
         end
       end
     end
@@ -485,7 +485,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 35 => king }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be true
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4'])).to be true
         end
       end
 
@@ -496,7 +496,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 35 => king,  18 => pawn }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'b6'])).to be false
         end
       end
 
@@ -507,7 +507,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 35 => king, 10 => knight }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'b7'])).to be false
         end
       end
 
@@ -518,7 +518,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 35 => king, 13 => bishop }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'e7'])).to be false
         end
       end
 
@@ -529,7 +529,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 35 => king, 31 => rook }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'g5'])).to be false
         end
       end
 
@@ -540,7 +540,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 35 => king, 31 => queen }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'g5'])).to be false
         end
       end
 
@@ -551,7 +551,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 35 => king, 31 => enemy_king }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'g5'])).to be false
         end
       end
 
@@ -562,7 +562,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 35 => king, 27 => ally }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'c5'])).to be false
         end
       end
 
@@ -573,7 +573,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 35 => king, 27 => enemy }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be true
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'c5'])).to be true
         end
       end
 
@@ -585,7 +585,7 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 35 => king, 27 => enemy, 10 => guard }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen)).to be false
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'c5', 'b7'])).to be false
         end
       end
     end
@@ -599,7 +599,7 @@ RSpec.describe ChessValidator::MoveLogic do
         fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
         expect(ChessValidator::MoveLogic).to receive(:handle_king)
-          .with(king, board, 'f1', fen)
+          .with(king, board, 'f1', fen, ['c4'])
 
         ChessValidator::MoveLogic.valid_move?(king, board, 'f1', fen)
       end
