@@ -34,19 +34,26 @@ module ChessValidator
         end
       end
 
-      def king_will_be_safe?(piece, board, move)
+      def with_next_move(piece, board, move)
         index = INDEX_KEY[move]
         new_board = board.clone
-        new_board[piece.index] = nil
-        new_board[index] = piece
-        # does not handle en_passant edge case
+        new_piece = piece.clone
+        new_piece.position = move
+        new_board.delete(piece.index)
+        new_board[index] = new_piece
+        # en_passant
+        # rook castle
+        new_board
+      end
+
+      def king_will_be_safe?(piece, board, move)
+        new_board = with_next_move(piece, board, move)
         occupied_spaces = []
         king = nil
-        board.values.detect do |p|
+        new_board.values.each do |p|
           king = p if p.piece_type.downcase == 'k' && p.color == piece.color
           occupied_spaces << p.position
         end
-        # new_board.values.each { |p|}
         king_is_safe?(king.color, new_board, king.position, occupied_spaces)
       end
 
@@ -167,24 +174,24 @@ module ChessValidator
         !(move_path & occupied_spaces).empty?
       end
 
-      def pinned?(piece, board, fen)
-        turn = fen.active
-        king = nil
-        enemy_bishops = []
-        enemy_rooks = []
-        enemy_queen = nil
-
-        board.values.each do |piece|
-          type = piece.piece_type.downcase
-          if piece.color == turn && type == 'k'
-            king = piece
-          elsif piece.color != turn
-            enemy_bishops << piece if type == 'b'
-            enemy_rooks << piece if type == 'r'
-            enemy_queen = piece if type == 'q'
-          end
-        end
-      end
+      # def pinned?(piece, board, fen)
+      #   turn = fen.active
+      #   king = nil
+      #   enemy_bishops = []
+      #   enemy_rooks = []
+      #   enemy_queen = nil
+      #
+      #   board.values.each do |piece|
+      #     type = piece.piece_type.downcase
+      #     if piece.color == turn && type == 'k'
+      #       king = piece
+      #     elsif piece.color != turn
+      #       enemy_bishops << piece if type == 'b'
+      #       enemy_rooks << piece if type == 'r'
+      #       enemy_queen = piece if type == 'q'
+      #     end
+      #   end
+      # end
 
       def moves_for_piece(piece)
         case piece.piece_type.downcase

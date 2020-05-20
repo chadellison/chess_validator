@@ -656,6 +656,25 @@ RSpec.describe ChessValidator::MoveLogic do
   end
 
   describe 'king_will_be_safe?' do
+    it 'calls with_next_move and king_is_safe? with the correct arguements' do
+      rook = ChessValidator::Piece.new('r', 43)
+      new_rook = ChessValidator::Piece.new('r', 35)
+      king = ChessValidator::Piece.new('k', 13)
+      board = { 43 => rook, 13 => king }
+      new_board = { 35 => new_rook, 13 => king }
+
+      expect(ChessValidator::MoveLogic).to receive(:with_next_move)
+        .with(rook, board, 'c4').and_return(new_board)
+
+      expect(ChessValidator::MoveLogic).to receive(:king_is_safe?)
+        .with('b', new_board, 'e7', ['c4', 'e7'])
+        .and_return(true)
+
+      expect(ChessValidator::MoveLogic.king_will_be_safe?(rook, board, 'c4')).to be true
+    end
+  end
+
+  describe 'with_next_move' do
 
   end
 
