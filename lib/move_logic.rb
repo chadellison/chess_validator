@@ -318,28 +318,20 @@ module ChessValidator
       end
 
       def moves_for_pawn(pawn)
-        possible_moves = []
+        column = pawn.position[0].ord
+        row = pawn.color == 'w' ? pawn.position[1].to_i + 1 : pawn.position[1].to_i - 1
 
-        if pawn.color == 'w'
-          sum1 = -9
-          sum2 = -8
-          sum3 = -7
-        else
-          sum1 = 9
-          sum2 = 8
-          sum3 = 7
-        end
-
-        possible_moves << SQUARE_KEY[pawn.square_index + sum1]
-        possible_moves << SQUARE_KEY[pawn.square_index + sum2]
-        possible_moves << SQUARE_KEY[pawn.square_index + sum3]
+        moves = [
+          (column - 1).chr + row.to_s,
+          (column + 1).chr + row.to_s,
+          column.chr + row.to_s
+        ]
 
         if pawn.color == 'w' && pawn.position[1] == '2' || pawn.color == 'b' && pawn.position[1] == '7'
-          two_forward = pawn.color == 'w' ? -16 : 16
-          possible_moves << SQUARE_KEY[pawn.square_index + two_forward]
+          two_forward = pawn.color == 'w' ? row + 1 : row - 1
+          moves << column.chr + two_forward.to_s
         end
-
-        possible_moves.compact
+        remove_out_of_bounds(moves)
       end
 
       def moves_horizontal(position)
