@@ -7,6 +7,6 @@ Gem::Specification.new 'chess_validator', '1.0' do |s|
   s.authors     = ["Charles Ellison"]
   s.homepage    = 'https://rubygems.org/search?utf8=%E2%9C%93&query=chess_validator'
   s.email       = 'chad.ellison0123@gmail.com'
-  s.files       = ['lib/chess_validator.rb', 'lib/move_logic.rb', 'lib/board_logic', 'lib/piece', 'lib/constants/square_key']
+  s.files       = ['lib/chess_validator.rb', 'lib/move_logic.rb', 'lib/board_logic.rb', 'lib/piece.rb', 'lib/constants/square_key.rb']
   s.license     = 'MIT'
 end
