@@ -3,12 +3,22 @@ require_relative './constants/square_key'
 module ChessValidator
   class MoveLogic
     class << self
-      def find_next_moves(fen)
-        board = BoardLogic.build_board(fen)
+      def find_next_moves(fen_notatioin)
+        fen = PGN::FEN.new(fen_notatioin)
+        next_moves(fen)
+      end
 
-        board.values.map do |piece|
-          load_valid_moves(board, piece, fen)
+      def next_moves(fen)
+        board = BoardLogic.build_board(fen)
+        pieces = []
+        board.values.each do |piece|
+          if piece.color == fen.active
+            load_valid_moves(board, piece, fen)
+            pieces << piece
+          end
         end
+
+        pieces
       end
 
       def load_valid_moves(board, piece, fen)
@@ -209,25 +219,6 @@ module ChessValidator
         !(move_path & occupied_spaces).empty?
       end
 
-      # def pinned?(piece, board, fen)
-      #   turn = fen.active
-      #   king = nil
-      #   enemy_bishops = []
-      #   enemy_rooks = []
-      #   enemy_queen = nil
-      #
-      #   board.values.each do |piece|
-      #     type = piece.piece_type.downcase
-      #     if piece.color == turn && type == 'k'
-      #       king = piece
-      #     elsif piece.color != turn
-      #       enemy_bishops << piece if type == 'b'
-      #       enemy_rooks << piece if type == 'r'
-      #       enemy_queen = piece if type == 'q'
-      #     end
-      #   end
-      # end
-
       def moves_for_piece(piece)
         case piece.piece_type.downcase
         when 'r'
@@ -239,7 +230,7 @@ module ChessValidator
         when 'k'
           moves_for_king(piece)
         when 'n'
-          moves_for_knight(piece.square_index)
+          moves_for_knight(piece.position)
         when 'p'
           moves_for_pawn(piece)
         end
@@ -293,12 +284,20 @@ module ChessValidator
         spaces_near_king(piece.square_index) + castle_moves
       end
 
-      def moves_for_knight(index)
+      def moves_for_knight(position)
+        column = position[0].ord
+        row = position[1].to_i
+
         [
-          SQUARE_KEY[index - 10], SQUARE_KEY[index - 17], SQUARE_KEY[index - 15],
-          SQUARE_KEY[index - 6], SQUARE_KEY[index + 10], SQUARE_KEY[index + 17],
-          SQUARE_KEY[index + 15], SQUARE_KEY[index + 6]
-        ].compact
+          (column - 2).chr + (row + 1).to_s,
+          (column - 2).chr + (row - 1).to_s,
+          (column + 2).chr + (row + 1).to_s,
+          (column + 2).chr + (row - 1).to_s,
+          (column - 1).chr + (row + 2).to_s,
+          (column - 1).chr + (row - 2).to_s,
+          (column + 1).chr + (row + 2).to_s,
+          (column + 1).chr + (row - 2).to_s
+        ].select { |move| ('a'..'h').include?(move[0]) && ('1'..'8').include?(move[1]) }
       end
 
       def moves_for_pawn(pawn)

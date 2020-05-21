@@ -54,7 +54,7 @@ RSpec.describe ChessValidator::MoveLogic do
       expected = ['b5', 'b3', 'f5', 'f3', 'c6', 'c2', 'e6', 'e2'].sort
 
       piece = ChessValidator::Piece.new('N', 36)
-      expect(ChessValidator::MoveLogic.moves_for_knight(piece.square_index).sort).to eq expected
+      expect(ChessValidator::MoveLogic.moves_for_knight(piece.position).sort).to eq expected
     end
   end
 
@@ -901,7 +901,7 @@ RSpec.describe ChessValidator::MoveLogic do
     end
   end
 
-  describe 'find_next_moves' do
+  describe 'next_moves' do
     it 'calls build_board' do
       pawn = ChessValidator::Piece.new('P', 52)
       board = { 52 => pawn }
@@ -910,25 +910,23 @@ RSpec.describe ChessValidator::MoveLogic do
       expect(ChessValidator::BoardLogic).to receive(:build_board)
         .and_return(board)
 
-      ChessValidator::MoveLogic.find_next_moves(fen)
+      ChessValidator::MoveLogic.next_moves(fen)
     end
 
     it 'calls load_valid_moves' do
       pawn = ChessValidator::Piece.new('P', 52)
       board = { 52 => pawn }
-      fen_notation = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+      fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
       valid_moves = ['d3', 'd4']
 
-      updated_pawn = ChessValidator::Piece.new('P', 52)
-      updated_pawn.valid_moves = valid_moves
+      pawn.valid_moves = valid_moves
 
       allow(ChessValidator::BoardLogic).to receive(:build_board)
         .and_return(board)
 
       expect(ChessValidator::MoveLogic).to receive(:load_valid_moves)
-        .and_return(updated_pawn)
 
-      actual = ChessValidator::MoveLogic.find_next_moves(fen_notation)
+      actual = ChessValidator::MoveLogic.next_moves(fen)
 
       expect(actual.first.valid_moves).to eq valid_moves
     end
