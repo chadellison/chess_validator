@@ -1,5 +1,4 @@
-require 'pry'
-require 'piece'
+require './piece'
 
 module ChessValidator
   class BoardLogic

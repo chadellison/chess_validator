@@ -1,1 +1,1 @@
-require 'move_logic'
+require './move_logic'
