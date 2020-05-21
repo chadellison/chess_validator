@@ -2,7 +2,7 @@ require_relative './constants/square_key'
 
 module ChessValidator
   class Piece
-    attr_reader :position, :piece_type, :color, :square_index
+    attr_accessor :position, :piece_type, :color, :square_index
 
     def initialize(char, square_index)
       @piece_type = char

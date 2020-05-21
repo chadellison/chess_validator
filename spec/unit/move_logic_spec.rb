@@ -675,7 +675,202 @@ RSpec.describe ChessValidator::MoveLogic do
   end
 
   describe 'with_next_move' do
+    context 'when the piece is a bishop' do
+      it 'returns the new board' do
+        bishop = ChessValidator::Piece.new('b', 43)
+        board = { 43 => bishop }
 
+        actual = ChessValidator::MoveLogic.with_next_move(bishop, board, 'e1')
+
+        expect(actual[43]).to be nil
+        expect(actual[61].position).to eq 'e1'
+        expect(actual[61].piece_type).to eq 'b'
+      end
+    end
+
+    context 'when the piece is a knight capturing a pawn' do
+      it 'returns the new board' do
+        knight = ChessValidator::Piece.new('N', 43)
+        pawn = ChessValidator::Piece.new('p', 58)
+        board = { 43 => knight, 58 => pawn }
+
+        actual = ChessValidator::MoveLogic.with_next_move(knight, board, 'b1')
+
+        expect(actual[43]).to be nil
+        expect(actual[58].position).to eq 'b1'
+        expect(actual[58].piece_type).to eq 'N'
+        expect(actual.size).to eq 1
+      end
+    end
+
+    context 'when the piece is a king castling' do
+      it 'returns the new board with the rook updated as well' do
+        king = ChessValidator::Piece.new('K', 61)
+        rook = ChessValidator::Piece.new('R', 57)
+        board = { 61 => king, 57 => rook }
+
+        actual = ChessValidator::MoveLogic.with_next_move(king, board, 'c1')
+
+        expect(actual[61]).to be nil
+        expect(actual[59].position).to eq 'c1'
+        expect(actual[59].piece_type).to eq 'K'
+        expect(actual[57]).to be nil
+        expect(actual[60].piece_type).to eq 'R'
+        expect(actual[60].position).to eq 'd1'
+        expect(actual.size).to eq 2
+      end
+    end
+  end
+
+  describe 'castled?' do
+    context 'when the king moved two' do
+      it 'returns true' do
+        king = ChessValidator::Piece.new('K', 61)
+        board = { 61 => king }
+
+        expect(ChessValidator::MoveLogic.castled?(king, 'c1')).to be true
+      end
+    end
+
+    context 'when the king did not move two' do
+      it 'returns false' do
+        king = ChessValidator::Piece.new('K', 61)
+        board = { 61 => king }
+
+        expect(ChessValidator::MoveLogic.castled?(king, 'd1')).to be false
+      end
+    end
+
+    context 'when the piece is not a king' do
+      it 'returns false' do
+        rook = ChessValidator::Piece.new('r', 61)
+        board = { 61 => rook }
+
+        expect(ChessValidator::MoveLogic.castled?(rook, 'c1')).to be false
+      end
+    end
+  end
+
+  describe 'en_passant?' do
+    context 'when the pawn has moved off of its column and the square is blank' do
+      it 'returns true' do
+        pawn = ChessValidator::Piece.new('p', 27)
+        board = { 27 => pawn }
+
+        expect(ChessValidator::MoveLogic.en_passant?(pawn, 'b6', nil)).to be true
+      end
+    end
+
+    context 'when the piece is not a pawn' do
+      it 'returns false' do
+        rook = ChessValidator::Piece.new('r', 27)
+
+        expect(ChessValidator::MoveLogic.en_passant?(rook, 'b6', nil)).to be false
+      end
+    end
+
+    context 'when the pawn has not moved off of its column' do
+      it 'returns false' do
+        pawn = ChessValidator::Piece.new('p', 27)
+
+        expect(ChessValidator::MoveLogic.en_passant?(pawn, 'c6', nil)).to be false
+      end
+    end
+
+    context 'when the pawn has moves to a square that is not blank' do
+      it 'returns false' do
+        pawn = ChessValidator::Piece.new('p', 27)
+        rook = ChessValidator::Piece.new('R', 18)
+
+        expect(ChessValidator::MoveLogic.en_passant?(pawn, 'b6', rook)).to be false
+      end
+    end
+  end
+
+  describe 'handle_castle' do
+    context 'when the move is c1' do
+      it 'returns the correct board' do
+        rook = ChessValidator::Piece.new('R', 57)
+        board = { 57 => rook }
+
+        actual = ChessValidator::MoveLogic.handle_castle(board, 'c1')
+
+        expect(actual[57]).to be nil
+        expect(actual[60].piece_type).to eq 'R'
+        expect(actual.size).to eq 1
+      end
+    end
+
+    context 'when the move is g1' do
+      it 'returns the correct board' do
+        rook = ChessValidator::Piece.new('R', 64)
+        board = { 64 => rook }
+
+        actual = ChessValidator::MoveLogic.handle_castle(board, 'g1')
+
+        expect(actual[64]).to be nil
+        expect(actual[62].piece_type).to eq 'R'
+        expect(actual.size).to eq 1
+      end
+    end
+
+    context 'when the move is c8' do
+      it 'returns the correct board' do
+        rook = ChessValidator::Piece.new('r', 1)
+        board = { 1 => rook }
+
+        actual = ChessValidator::MoveLogic.handle_castle(board, 'c8')
+
+        expect(actual[1]).to be nil
+        expect(actual[4].piece_type).to eq 'r'
+        expect(actual.size).to eq 1
+      end
+    end
+
+    context 'when the move is g8' do
+      it 'returns the correct board' do
+        rook = ChessValidator::Piece.new('r', 8)
+        board = { 8 => rook }
+
+        actual = ChessValidator::MoveLogic.handle_castle(board, 'g8')
+
+        expect(actual[8]).to be nil
+        expect(actual[6].piece_type).to eq 'r'
+        expect(actual.size).to eq 1
+      end
+    end
+  end
+
+  describe 'handle_en_passant' do
+    context 'when the color is white' do
+      it 'returns the correct board' do
+        pawn = ChessValidator::Piece.new('P', 18)
+        enemy_pawn = ChessValidator::Piece.new('p', 26)
+        board = { 18 => pawn, 26 => enemy_pawn }
+
+        actual = ChessValidator::MoveLogic.handle_en_passant(board, 'w', 'b6')
+
+        expect(actual[26]).to be nil
+        expect(actual[18].piece_type).to eq 'P'
+        expect(actual[18].position).to eq 'b6'
+        expect(actual.size).to eq 1
+      end
+    end
+
+    context 'when the color is black' do
+      it 'returns the correct board' do
+        pawn = ChessValidator::Piece.new('p', 44)
+        enemy_pawn = ChessValidator::Piece.new('P', 36)
+        board = { 44 => pawn, 36 => enemy_pawn }
+
+        actual = ChessValidator::MoveLogic.handle_en_passant(board, 'b', 'd3')
+
+        expect(actual[36]).to be nil
+        expect(actual[44].piece_type).to eq 'p'
+        expect(actual[44].position).to eq 'd3'
+        expect(actual.size).to eq 1
+      end
+    end
   end
 
   describe 'find_next_moves' do

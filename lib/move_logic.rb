@@ -37,13 +37,54 @@ module ChessValidator
       def with_next_move(piece, board, move)
         index = INDEX_KEY[move]
         new_board = board.clone
-        new_piece = piece.clone
-        new_piece.position = move
-        new_board.delete(piece.index)
+        new_piece = Piece.new(piece.piece_type, index)
+        new_board.delete(piece.square_index)
         new_board[index] = new_piece
-        # en_passant
-        # rook castle
+        new_board = handle_castle(new_board, move) if castled?(piece, move)
+        new_board = handle_en_passant(new_board, piece.color, move) if en_passant?(piece, move, new_board[index])
         new_board
+      end
+
+      def handle_en_passant(board, pawn_color, move)
+        if pawn_color == 'w'
+          index = INDEX_KEY[move[0] + '5']
+        else
+          index = INDEX_KEY[move[0] + '4']
+        end
+
+        board.delete(index)
+        board
+      end
+
+      def handle_castle(board, move)
+        case move
+        when 'c1'
+          new_piece = Piece.new('R', 60)
+          board.delete(57)
+          board[60] = new_piece
+        when 'g1'
+          new_piece = Piece.new('R', 62)
+          board.delete(64)
+          board[62] = new_piece
+        when 'c8'
+          new_piece = Piece.new('r', 4)
+          board.delete(1)
+          board[4] = new_piece
+        when 'g8'
+          new_piece = Piece.new('r', 6)
+          board.delete(8)
+          board[6] = new_piece
+        end
+
+        board
+      end
+
+      def castled?(piece, move)
+        piece.piece_type.downcase == 'k' && (piece.position[0].ord - move[0].ord).abs == 2
+      end
+
+      def en_passant?(piece, move, square)
+        piece.piece_type.downcase == 'p' && piece.position[0] != move[0] && !square
       end
 
       def king_will_be_safe?(piece, board, move)
