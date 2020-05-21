@@ -7,10 +7,9 @@ module ChessValidator
         fen = PGN::FEN.new(fen_notation)
         board = BoardLogic.build_board(fen)
 
-        pieces = board.values.map do |piece|
+        board.values.map do |piece|
           load_valid_moves(board, piece, fen)
-        end.compact
-        # return pieces
+        end
       end
 
       def load_valid_moves(board, piece, fen)
@@ -116,11 +115,11 @@ module ChessValidator
         end
       end
 
-      def king_is_safe?(king_color, board, king_move, occupied_spaces)
+      def king_is_safe?(king_color, board, king_position, occupied_spaces)
         board.values.none? do |piece|
           piece.color != king_color &&
           moves_for_piece(piece).select do |move|
-            king_move == move && valid_move_path?(piece, king_move, occupied_spaces)
+            king_position == move && valid_move_path?(piece, king_position, occupied_spaces)
           end.size > 0
         end
       end
