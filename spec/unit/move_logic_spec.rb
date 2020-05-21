@@ -28,6 +28,14 @@ RSpec.describe ChessValidator::MoveLogic do
         expect(ChessValidator::MoveLogic.moves_for_bishop('c7').sort).to eq expected
       end
     end
+
+    context 'when the bishop is on c8' do
+      it 'returns an array of all possible moves for a bishop in a given position' do
+        expected = ['a6', 'b7', 'd7', 'e6', 'f5', 'g4', 'h3'].sort
+
+        expect(ChessValidator::MoveLogic.moves_for_bishop('c8').sort).to eq expected
+      end
+    end
   end
 
   describe 'moves_for_queen' do
@@ -45,7 +53,16 @@ RSpec.describe ChessValidator::MoveLogic do
       piece = ChessValidator::Piece.new('K', 36)
       expected = ['d5', 'd3', 'c4', 'e4', 'e5', 'c5', 'c3', 'e3', 'b4', 'f4'].sort
 
-      expect(ChessValidator::MoveLogic.moves_for_king(piece).sort).to eq expected
+      expect(ChessValidator::MoveLogic.moves_for_king('d4').sort).to eq expected
+    end
+
+    context 'when the king is on h8' do
+      it 'returns an array of the correct king moves' do
+        piece = ChessValidator::Piece.new('k', 8)
+        expected = ['g7', 'g8','h7', 'f8'].sort
+
+        expect(ChessValidator::MoveLogic.moves_for_king('h8').sort).to eq expected
+      end
     end
   end
 

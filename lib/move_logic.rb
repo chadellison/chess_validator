@@ -228,7 +228,7 @@ module ChessValidator
         when 'q'
           moves_for_queen(piece.position)
         when 'k'
-          moves_for_king(piece)
+          moves_for_king(piece.position)
         when 'n'
           moves_for_knight(piece.position)
         when 'p'
@@ -254,12 +254,12 @@ module ChessValidator
         row = position[1]
         possible_moves = []
 
-        while column > 'a' && column < 'h' && row > '1' && row < '8' do
+        while column >= 'a' && column <= 'h' && row >= '1' && row <= '8' do
           column = horizontal == 'left' ? previous_char(column) : column.next
           row = vertical == 'up' ? row.next : previous_char(row)
           possible_moves << column + row
         end
-        possible_moves
+        remove_out_of_bounds(possible_moves)
       end
 
       def previous_char(char)
@@ -270,25 +270,32 @@ module ChessValidator
         moves_for_rook(position) + moves_for_bishop(position)
       end
 
-      def spaces_near_king(index)
-        [
-          SQUARE_KEY[index - 1], SQUARE_KEY[index + 1],
-          SQUARE_KEY[index - 7], SQUARE_KEY[index - 8], SQUARE_KEY[index - 9],
-          SQUARE_KEY[index + 7], SQUARE_KEY[index + 8], SQUARE_KEY[index + 9]
-        ].compact
+      def spaces_near_king(position)
+        column = position[0].ord
+        row = position[1].to_i
+
+        moves = [
+          (column - 1).chr + row.to_s,
+          (column + 1).chr + row.to_s,
+          (column - 1).chr + (row - 1).to_s,
+          (column - 1).chr + (row + 1).to_s,
+          (column + 1).chr + (row - 1).to_s,
+          (column + 1).chr + (row + 1).to_s,
+          column.chr + (row + 1).to_s,
+          column.chr + (row - 1).to_s
+        ]
       end
 
-      def moves_for_king(piece)
-        position = piece.position
+      def moves_for_king(position)
         castle_moves = [(position[0].ord - 2).chr + position[1], position[0].next.next + position[1]]
-        spaces_near_king(piece.square_index) + castle_moves
+        remove_out_of_bounds(spaces_near_king(position) + castle_moves)
       end
 
       def moves_for_knight(position)
         column = position[0].ord
         row = position[1].to_i
 
-        [
+        moves = [
           (column - 2).chr + (row + 1).to_s,
           (column - 2).chr + (row - 1).to_s,
           (column + 2).chr + (row + 1).to_s,
@@ -297,7 +304,12 @@ module ChessValidator
           (column - 1).chr + (row - 2).to_s,
           (column + 1).chr + (row + 2).to_s,
           (column + 1).chr + (row - 2).to_s
-        ].select { |move| ('a'..'h').include?(move[0]) && ('1'..'8').include?(move[1]) }
+        ]
+        remove_out_of_bounds(moves)
+      end
+
+      def remove_out_of_bounds(moves)
+        moves.select { |move| ('a'..'h').include?(move[0]) && ('1'..'8').include?(move[1]) }
       end
 
       def moves_for_pawn(pawn)
