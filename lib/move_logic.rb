@@ -59,21 +59,17 @@ module ChessValidator
       def handle_castle(board, move)
         case move
         when 'c1'
-          new_piece = Piece.new('R', 60)
           board.delete(57)
-          board[60] = new_piece
+          board[60] = Piece.new('R', 60)
         when 'g1'
-          new_piece = Piece.new('R', 62)
           board.delete(64)
-          board[62] = new_piece
+          board[62] = Piece.new('R', 62)
         when 'c8'
-          new_piece = Piece.new('r', 4)
           board.delete(1)
-          board[4] = new_piece
+          board[4] = Piece.new('r', 4)
         when 'g8'
-          new_piece = Piece.new('r', 6)
           board.delete(8)
-          board[6] = new_piece
+          board[6] = Piece.new('r', 6)
         end
 
         board
