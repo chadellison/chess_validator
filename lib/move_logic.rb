@@ -8,6 +8,11 @@ module ChessValidator
         next_moves(fen)
       end
 
+      def find_next_moves_from_moves(moves)
+        fen = PGN::Game.new(moves).positions.last.to_fen
+        next_moves(fen)
+      end
+
       def next_moves(fen)
         board = BoardLogic.build_board(fen)
         pieces = []

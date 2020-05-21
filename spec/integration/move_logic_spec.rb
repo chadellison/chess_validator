@@ -87,5 +87,35 @@ RSpec.describe ChessValidator::MoveLogic do
         expect(actual).to eq expected
       end
     end
+
+    context 'when the board is another pattern still' do
+      it 'returns an array of piece objects with their respective next moves' do
+        expected = [
+          {'d5'=>[]},
+          {'e4'=>['e5']},
+          {'c3'=>['a4', 'b5', 'b1', 'd1']},
+          {'e3'=>['f4', 'g5', 'h6', 'd4', 'c5']},
+          {'f3'=>['d4', 'h4', 'h2', 'e5', 'e1', 'g5']},
+          {'h3'=>['h4']},
+          {'a2'=>['a3']},
+          {'b2'=>['b3', 'b4']},
+          {'d2'=>['c2', 'd1', 'd3', 'd4', 'c1', 'e1']},
+          {'e2'=>['d3', 'c4', 'b5', 'a6', 'd1']},
+          {'f2'=>[]},
+          {'g2'=>['g3', 'g4']},
+          {'a1'=>['b1', 'c1', 'd1', 'e1']},
+          {'f1'=>['b1', 'c1', 'd1', 'e1']},
+          {'g1'=>['h1', 'h2']}
+       ]
+
+        fen = PGN::FEN.new('r1b2r2/4ppbk/p2p1npp/q1pP4/n3P3/2N1BN1P/PP1QBPP1/R4RK1 w - - 2 15')
+
+        actual = ChessValidator::MoveLogic.next_moves(fen).map do |piece|
+          { piece.position => piece.valid_moves }
+        end
+
+        expect(actual).to eq expected
+      end
+    end
   end
 end

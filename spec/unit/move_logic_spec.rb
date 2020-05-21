@@ -4,6 +4,41 @@ require 'piece'
 require 'pgn'
 
 RSpec.describe ChessValidator::MoveLogic do
+  describe 'find_next_moves' do
+    it 'calls next_moves with the fen object' do
+      fen_notatioin = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+      fen = PGN::FEN.new(fen_notatioin)
+      allow(PGN::FEN).to receive(:new).with(fen_notatioin)
+        .and_return(fen)
+
+      expect(ChessValidator::MoveLogic).to receive(:next_moves).with(fen)
+
+      ChessValidator::MoveLogic.find_next_moves(fen_notatioin)
+    end
+  end
+
+  describe 'find_next_moves_from_moves' do
+    it 'calls next_moves with the fen object' do
+      moves = ['d3', 'c6', 'e4']
+      fen_notatioin = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+      game = PGN::Game.new(moves)
+      positions = game.positions
+      last_position = game.positions.last
+
+      fen = PGN::FEN.new(fen_notatioin)
+
+      allow(PGN::Game).to receive(:new).with(moves)
+        .and_return(game)
+
+      allow(game).to receive(:positions).and_return(positions)
+      allow(last_position).to receive(:to_fen).and_return(fen)
+
+      expect(ChessValidator::MoveLogic).to receive(:next_moves).with(fen)
+
+      ChessValidator::MoveLogic.find_next_moves_from_moves(moves)
+    end
+  end
+
   describe 'moves_for_rook' do
     it 'returns an array of all possible moves for a rook in a given position' do
       expected = ['d5', 'd6', 'd7', 'd8', 'd3', 'd2', 'd1', 'c4', 'b4', 'a4',
