@@ -1,4 +1,4 @@
-require './piece'
+require_relative './piece'
 
 module ChessValidator
   class BoardLogic

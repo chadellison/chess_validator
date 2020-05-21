@@ -1,5 +1,5 @@
 require_relative './constants/square_key'
-require './board_logic'
+require_relative './board_logic'
 require 'pgn'
 
 module ChessValidator
