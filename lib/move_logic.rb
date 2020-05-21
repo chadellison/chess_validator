@@ -1,10 +1,9 @@
 require_relative './constants/square_key'
-require 'pry'
+
 module ChessValidator
   class MoveLogic
     class << self
-      def find_next_moves(fen_notation)
-        fen = PGN::FEN.new(fen_notation)
+      def find_next_moves(fen)
         board = BoardLogic.build_board(fen)
 
         board.values.map do |piece|

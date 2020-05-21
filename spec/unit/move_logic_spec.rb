@@ -905,12 +905,12 @@ RSpec.describe ChessValidator::MoveLogic do
     it 'calls build_board' do
       pawn = ChessValidator::Piece.new('P', 52)
       board = { 52 => pawn }
-      fen_notation = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+      fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
       expect(ChessValidator::BoardLogic).to receive(:build_board)
         .and_return(board)
 
-      ChessValidator::MoveLogic.find_next_moves(fen_notation)
+      ChessValidator::MoveLogic.find_next_moves(fen)
     end
 
     it 'calls load_valid_moves' do

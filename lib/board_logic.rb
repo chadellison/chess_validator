@@ -10,6 +10,8 @@ module ChessValidator
           board[square_index] = Piece.new(char, square_index)
         end
       end
+
+      board
     end
 
     def self.empty_square?(char)
