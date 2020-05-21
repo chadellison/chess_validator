@@ -1,7 +1,6 @@
-require_relative './constants/square_key'
 require 'board_logic'
 require 'pgn'
-
+require 'pry'
 module ChessValidator
   class MoveLogic
     class << self
@@ -312,11 +311,12 @@ module ChessValidator
           (column + 1).chr + (row + 2).to_s,
           (column + 1).chr + (row - 2).to_s
         ]
+
         remove_out_of_bounds(moves)
       end
 
       def remove_out_of_bounds(moves)
-        moves.select { |move| ('a'..'h').include?(move[0]) && ('1'..'8').include?(move[1]) }
+        moves.select { |move| ('a'..'h').include?(move[0]) && ('1'..'8').include?(move[1..-1]) }
       end
 
       def moves_for_pawn(pawn)

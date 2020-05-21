@@ -2,6 +2,7 @@ require 'move_logic'
 require 'board_logic'
 require 'piece'
 require 'pgn'
+require 'pry'
 
 RSpec.describe ChessValidator::MoveLogic do
   describe 'find_next_moves' do
@@ -22,6 +23,7 @@ RSpec.describe ChessValidator::MoveLogic do
       moves = ['d3', 'c6', 'e4']
       fen_notatioin = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
       game = PGN::Game.new(moves)
+
       positions = game.positions
       last_position = game.positions.last
 
@@ -107,6 +109,16 @@ RSpec.describe ChessValidator::MoveLogic do
 
       piece = ChessValidator::Piece.new('N', 36)
       expect(ChessValidator::MoveLogic.moves_for_knight(piece.position).sort).to eq expected
+    end
+
+    context 'when the knight is on b8' do
+      it 'returns an array of all possible moves for a knight in a given position' do
+        expected = ['a6', 'c6', 'd7'].sort
+
+        piece = ChessValidator::Piece.new('n', 2)
+
+        expect(ChessValidator::MoveLogic.moves_for_knight(piece.position).sort).to eq expected
+      end
     end
   end
 

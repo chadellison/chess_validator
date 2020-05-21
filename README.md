@@ -32,20 +32,20 @@ ChessValidator::MoveLogic.find_next_moves_from_moves(['d4', 'd5', 'Nc3'])
 
 ```
 # =>
-[#<ChessValidator::Piece:0x00007f84a08ed150
+[#<ChessValidator::Piece:0x00007f9db728edb0
   @color="b",
   @enemy_targets=[],
   @piece_type="r",
   @position="a8",
   @square_index=1,
   @valid_moves=[]>,
- #<ChessValidator::Piece:0x00007f84a08f7290
+ #<ChessValidator::Piece:0x00007f9db728e518
   @color="b",
   @enemy_targets=[],
   @piece_type="n",
   @position="b8",
   @square_index=2,
-  @valid_moves=["d7", "a10", "a6", "c10", "c6"]>,
+  @valid_moves=["d7", "a6", "c6"]>,
   ...]
 ```
 
