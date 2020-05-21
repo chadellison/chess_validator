@@ -2,10 +2,11 @@
 
 A ruby library for validating chess moves and finding the next available moves from a given position.
 
-###Use
+### Use
 find next moves from an fen notation string
 ```
-ChessValidator::MoveLogic.find_next_moves('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')```
+ChessValidator::MoveLogic.find_next_moves('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+```
 ```
 # => [#<ChessValidator::Piece:0x00007f84a0a7eb40
   @color="w",
