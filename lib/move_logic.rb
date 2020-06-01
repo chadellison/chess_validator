@@ -290,6 +290,7 @@ module ChessValidator
           column.chr + (row + 1).to_s,
           column.chr + (row - 1).to_s
         ]
+        remove_out_of_bounds(moves)
       end
 
       def moves_for_king(position)
