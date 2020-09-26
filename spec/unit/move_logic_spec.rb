@@ -995,4 +995,40 @@ RSpec.describe ChessValidator::MoveLogic do
       expect(actual.first.valid_moves).to eq valid_moves
     end
   end
+
+  describe 'make_move' do
+    it 'calls build_board, with_next_move, and to_fen_notation' do
+      pawn = ChessValidator::Piece.new('P', 52)
+      board = { 52 => pawn }
+      fen_notatioin = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+      fen = PGN::FEN.new(fen_notatioin)
+      valid_moves = ['d3', 'd4']
+
+      allow(PGN::FEN).to receive(:new).with(fen_notatioin).and_return(fen)
+
+      expect(ChessValidator::BoardLogic).to receive(:build_board).with(fen)
+        .and_return(board)
+      expect(ChessValidator::MoveLogic).to receive(:with_next_move)
+        .with(pawn, board, 'd4')
+        .and_return(board)
+
+      expect(ChessValidator::BoardLogic).to receive(:to_fen_notation)
+        .with(board, fen, pawn, 'd4')
+
+      ChessValidator::MoveLogic.make_move(pawn, 'd4', fen_notatioin)
+    end
+  end
+
+  describe 'make_random_move' do
+    it 'calls make move with the correct arguments' do
+      fen_notatioin = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+      piece = ChessValidator::Piece.new('k', 2)
+      piece.valid_moves = ['d4']
+      pieces_with_moves = [piece]
+      expect(ChessValidator::MoveLogic).to receive(:make_move)
+        .with(piece, 'd4', fen_notatioin)
+      
+      ChessValidator::MoveLogic.make_random_move(fen_notatioin, pieces_with_moves)
+    end
+  end
 end

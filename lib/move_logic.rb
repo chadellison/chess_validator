@@ -1,6 +1,6 @@
 require 'board_logic'
 require 'pgn'
-require 'pry'
+
 module ChessValidator
   class MoveLogic
     class << self
@@ -20,7 +20,7 @@ module ChessValidator
         board.values.each do |piece|
           if piece.color == fen.active
             load_valid_moves(board, piece, fen)
-            pieces << piece
+            pieces << piece if piece.valid_moves.size > 0
           end
         end
 
@@ -89,6 +89,20 @@ module ChessValidator
         board
       end
 
+      def make_random_move(fen_notatioin, pieces_with_moves)
+        piece_to_move = pieces_with_moves.sample
+        move = piece_to_move.valid_moves.sample
+        make_move(piece_to_move, move, fen_notatioin)
+      end
+
+      def make_move(piece, move, fen_notatioin)
+        fen = PGN::FEN.new(fen_notatioin)
+        board = BoardLogic.build_board(fen)
+        new_board = with_next_move(piece, board, move)
+
+        BoardLogic.to_fen_notation(new_board, fen, piece, move)
+      end
+
       def castled?(piece, move)
         piece.piece_type.downcase == 'k' && (piece.position[0].ord - move[0].ord).abs == 2
       end
@@ -105,6 +119,8 @@ module ChessValidator
           king = p if p.piece_type.downcase == 'k' && p.color == piece.color
           occupied_spaces << p.position
         end
+
+        return false if king.nil?
         king_is_safe?(king.color, new_board, king.position, occupied_spaces)
       end
 

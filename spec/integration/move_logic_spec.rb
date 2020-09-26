@@ -15,14 +15,8 @@ RSpec.describe ChessValidator::MoveLogic do
           {'f2'=>['f3', 'f4']},
           {'g2'=>['g3', 'g4']},
           {'h2'=>['h3', 'h4']},
-          {'a1'=>[]},
           {'b1'=>['a3', 'c3']},
-          {'c1'=>[]},
-          {'d1'=>[]},
-          {'e1'=>[]},
-          {'f1'=>[]},
           {'g1'=>['f3', 'h3']},
-          {'h1'=>[]}
         ]
 
         fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
@@ -40,13 +34,10 @@ RSpec.describe ChessValidator::MoveLogic do
         expected = [
           {'c8'=>['b7', 'd7']},
           {'d8'=>['e8', 'f8', 'g8', 'h8', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7']},
-          {'a7'=>[]},
           {'e7'=>['b7', 'c7', 'd7', 'e8', 'f8', 'd6', 'c5', 'f6', 'g5', 'h4']},
           {'f7'=>['f6', 'f5']},
           {'g7'=>['h7', 'f8', 'h8', 'g8']},
           {'a6'=>['a5']},
-          {'c6'=>[]},
-          {'e6'=>[]},
           {'g6'=>['g5']},
           {'h6'=>['h5']},
           {'b5'=>['a5', 'c5', 'b4', 'b6', 'b7', 'b8']}
@@ -66,7 +57,6 @@ RSpec.describe ChessValidator::MoveLogic do
       it 'returns an array of piece objects with their respective next moves' do
         expected = [
           {'h8'=>['g8', 'g7']},
-          {'a7'=>[]},
           {'h7'=>['h6', 'h5']},
           {'a6'=>['b6', 'a3', 'a4', 'a5', 'b7', 'c8', 'b5', 'c4']},
           {'c6'=>['c5']},
@@ -74,7 +64,6 @@ RSpec.describe ChessValidator::MoveLogic do
           {'f6'=>['e6', 'f7', 'f8']},
           {'g6'=>['g5']},
           {'f5'=>['f4']},
-          {'e4'=>[]},
           {'d3'=>['c4', 'b5', 'c2', 'b1', 'e2', 'f1']}
         ]
 
@@ -91,7 +80,6 @@ RSpec.describe ChessValidator::MoveLogic do
     context 'when the board is another pattern still' do
       it 'returns an array of piece objects with their respective next moves' do
         expected = [
-          {'d5'=>[]},
           {'e4'=>['e5']},
           {'c3'=>['a4', 'b5', 'b1', 'd1']},
           {'e3'=>['f4', 'g5', 'h6', 'd4', 'c5']},
@@ -101,7 +89,6 @@ RSpec.describe ChessValidator::MoveLogic do
           {'b2'=>['b3', 'b4']},
           {'d2'=>['c2', 'd1', 'd3', 'd4', 'c1', 'e1']},
           {'e2'=>['d3', 'c4', 'b5', 'a6', 'd1']},
-          {'f2'=>[]},
           {'g2'=>['g3', 'g4']},
           {'a1'=>['b1', 'c1', 'd1', 'e1']},
           {'f1'=>['b1', 'c1', 'd1', 'e1']},

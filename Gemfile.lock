@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    diff-lcs (1.3)
+    diff-lcs (1.4.4)
     pgn (0.3.0)
       whittle
     rspec (3.9.0)
