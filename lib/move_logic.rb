@@ -4,8 +4,8 @@ require 'pgn'
 module ChessValidator
   class MoveLogic
     class << self
-      def find_next_moves(fen_notatioin)
-        fen = PGN::FEN.new(fen_notatioin)
+      def find_next_moves(fen_notation)
+        fen = PGN::FEN.new(fen_notation)
         next_moves(fen)
       end
 
@@ -89,14 +89,14 @@ module ChessValidator
         board
       end
 
-      def make_random_move(fen_notatioin, pieces_with_moves)
+      def make_random_move(fen_notation, pieces_with_moves)
         piece_to_move = pieces_with_moves.sample
         move = piece_to_move.valid_moves.sample
-        make_move(piece_to_move, move, fen_notatioin)
+        make_move(piece_to_move, move, fen_notation)
       end
 
-      def make_move(piece, move, fen_notatioin)
-        fen = PGN::FEN.new(fen_notatioin)
+      def make_move(piece, move, fen_notation)
+        fen = PGN::FEN.new(fen_notation)
         board = BoardLogic.build_board(fen)
         new_board = with_next_move(piece, board, move)
 
@@ -113,15 +113,18 @@ module ChessValidator
 
       def king_will_be_safe?(piece, board, move)
         new_board = with_next_move(piece, board, move)
+        king, occupied_spaces = find_king_and_spaces(new_board, piece.color)
+        king_is_safe?(king.color, new_board, king.position, occupied_spaces)
+      end
+
+      def find_king_and_spaces(board, color)
         occupied_spaces = []
         king = nil
-        new_board.values.each do |p|
-          king = p if p.piece_type.downcase == 'k' && p.color == piece.color
+        board.values.each do |p|
+          king = p if p.piece_type.downcase == 'k' && p.color == color
           occupied_spaces << p.position
         end
-
-        return false if king.nil?
-        king_is_safe?(king.color, new_board, king.position, occupied_spaces)
+        [king, occupied_spaces]
       end
 
       def handle_king(king, board, move, fen, occupied_spaces)
@@ -159,11 +162,12 @@ module ChessValidator
         position = piece.position
 
         if position[0] == move[0]
-          advance_pawn?(piece, board, move)
+          valid = advance_pawn?(piece, board, move)
         else
           target_piece = find_piece(board, move)
-          (target_piece && target_piece.color != piece.color) || move == fen.en_passant
+          valid = (target_piece && target_piece.color != piece.color) || move == fen.en_passant
         end
+        valid && king_will_be_safe?(piece, board, move)
       end
 
       def advance_pawn?(pawn, board, move)

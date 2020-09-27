@@ -393,6 +393,10 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 52 => pawn, 43 => enemy_piece }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
+          expect(ChessValidator::MoveLogic).to receive(:king_will_be_safe?)
+            .with(pawn, board, 'c3')
+            .and_return(true)
+
           expect(ChessValidator::MoveLogic.handle_pawn(pawn, board, 'c3', fen)).to be true
         end
       end
@@ -415,6 +419,10 @@ RSpec.describe ChessValidator::MoveLogic do
           board = { 28 => pawn, 29 => enemy_pawn }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 0 1')
 
+          expect(ChessValidator::MoveLogic).to receive(:king_will_be_safe?)
+            .with(pawn, board, 'e6')
+            .and_return(true)
+
           expect(ChessValidator::MoveLogic.handle_pawn(pawn, board, 'e6', fen)).to be true
         end
       end
@@ -426,6 +434,21 @@ RSpec.describe ChessValidator::MoveLogic do
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
           expect(ChessValidator::MoveLogic.handle_pawn(pawn, board, 'c3', fen)).to be false
+        end
+      end
+
+      context 'when there is an opportunity to en_passant and king_will_be_safe? is false' do
+        it 'returns false' do
+          pawn = ChessValidator::Piece.new('P', 28)
+          enemy_pawn = ChessValidator::Piece.new('p', 29)
+          board = { 28 => pawn, 29 => enemy_pawn }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 0 1')
+
+          expect(ChessValidator::MoveLogic).to receive(:king_will_be_safe?)
+            .with(pawn, board, 'e6')
+            .and_return(false)
+
+          expect(ChessValidator::MoveLogic.handle_pawn(pawn, board, 'e6', fen)).to be false
         end
       end
     end
@@ -939,7 +962,7 @@ RSpec.describe ChessValidator::MoveLogic do
   end
 
   describe 'load_valid_moves' do
-    it 'calls moves_for_piece' do
+    it 'calls moves_for_piece and valid_move?' do
       pawn = ChessValidator::Piece.new('p', 52)
       board = { 52 => pawn }
       fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
@@ -947,26 +970,18 @@ RSpec.describe ChessValidator::MoveLogic do
       expect(ChessValidator::MoveLogic).to receive(:moves_for_piece)
         .with(pawn).and_return(['d3', 'd4'])
 
-      ChessValidator::MoveLogic.load_valid_moves(board, pawn, fen)
-    end
-
-    it 'calls valid_move?' do
-      pawn = ChessValidator::Piece.new('p', 52)
-      board = { 52 => pawn }
-      fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
-
-      allow(ChessValidator::MoveLogic).to receive(:moves_for_piece)
-        .with(pawn).and_return(['d3'])
-
       expect(ChessValidator::MoveLogic).to receive(:valid_move?)
         .with(pawn, board, 'd3', fen)
+
+      expect(ChessValidator::MoveLogic).to receive(:valid_move?)
+        .with(pawn, board, 'd4', fen)
 
       ChessValidator::MoveLogic.load_valid_moves(board, pawn, fen)
     end
   end
 
   describe 'next_moves' do
-    it 'calls build_board' do
+    it 'calls build_board, load_valid_moves' do
       pawn = ChessValidator::Piece.new('P', 52)
       board = { 52 => pawn }
       fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
@@ -974,10 +989,12 @@ RSpec.describe ChessValidator::MoveLogic do
       expect(ChessValidator::BoardLogic).to receive(:build_board)
         .and_return(board)
 
+      expect(ChessValidator::MoveLogic).to receive(:load_valid_moves)
+
       ChessValidator::MoveLogic.next_moves(fen)
     end
 
-    it 'calls load_valid_moves' do
+    it 'returns the valid moves' do
       pawn = ChessValidator::Piece.new('P', 52)
       board = { 52 => pawn }
       fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
@@ -1027,7 +1044,7 @@ RSpec.describe ChessValidator::MoveLogic do
       pieces_with_moves = [piece]
       expect(ChessValidator::MoveLogic).to receive(:make_move)
         .with(piece, 'd4', fen_notatioin)
-      
+
       ChessValidator::MoveLogic.make_random_move(fen_notatioin, pieces_with_moves)
     end
   end

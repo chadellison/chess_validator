@@ -1,2 +1,2 @@
 require 'move_logic'
-require 'pry'
+require 'game_logic'

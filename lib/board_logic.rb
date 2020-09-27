@@ -5,7 +5,7 @@ module ChessValidator
     def self.build_board(fen)
       board = {}
       square_index = 1
-      fen.to_s.split(' ').first.chars.each do |char|
+      fen.board_string.chars.each do |char|
         if empty_square?(char)
           square_index += char.to_i
         elsif char != '/'
