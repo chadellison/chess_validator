@@ -152,9 +152,13 @@ module ChessValidator
       def king_is_safe?(king_color, board, king_position, occupied_spaces)
         board.values.none? do |piece|
           piece.color != king_color &&
-          moves_for_piece(piece).select do |move|
-            king_position == move && valid_move_path?(piece, king_position, occupied_spaces)
-          end.size > 0
+          moves_for_piece(piece).any? do |move|
+            if piece.piece_type.downcase == 'p'
+              king_position == move && piece.position[0] != king_position[0]
+            else
+              king_position == move && valid_move_path?(piece, king_position, occupied_spaces)
+            end
+          end
         end
       end
 
