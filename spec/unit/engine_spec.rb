@@ -53,4 +53,46 @@ RSpec.describe ChessValidator::Engine do
       ChessValidator::Engine.find_next_moves_from_moves(moves)
     end
   end
+
+  describe 'move' do
+    it 'calls make_move on MoveLogic' do
+      piece = ChessValidator::Piece.new('p', 9)
+      move = 'a4'
+      fen_notation = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
+      expect(ChessValidator::MoveLogic).to receive(:make_move)
+        .with(piece, move, fen_notation)
+
+      ChessValidator::Engine.move(piece, move, fen_notation)
+    end
+  end
+
+  describe 'pieces' do
+    it 'calls build_board on BoardLogic' do
+      piece = ChessValidator::Piece.new('p', 9)
+      fen_notation = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+      fen = PGN::FEN.new(fen_notation)
+
+      allow(PGN::FEN).to receive(:new).with(fen_notation)
+        .and_return(fen)
+
+      expect(ChessValidator::BoardLogic).to receive(:build_board)
+        .with(fen)
+        .and_return({1 => piece})
+
+      actual = ChessValidator::Engine.pieces(fen_notation)
+      expect(actual).to eq [piece]
+    end
+  end
+
+  describe 'result' do
+    it 'calls find_game_result on GameLogic' do
+      fen_notation = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
+      expect(ChessValidator::GameLogic).to receive(:find_game_result)
+        .with(fen_notation)
+
+      actual = ChessValidator::Engine.result(fen_notation)
+    end
+  end
 end

@@ -17,7 +17,6 @@ RSpec.describe ChessValidator::Engine do
           {'g1'=>['f3', 'h3']},
         ]
 
-        # fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
         fen_notation = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
         actual = ChessValidator::Engine.find_next_moves(fen_notation).map do |piece|
@@ -101,6 +100,140 @@ RSpec.describe ChessValidator::Engine do
         end
 
         expect(actual).to eq expected
+      end
+    end
+  end
+
+  describe 'find_next_moves_from_moves' do
+    it 'returns the correct next moves' do
+      expected = [
+        {'b8'=>['d7', 'a6', 'c6']},
+        {'c8'=>['d7', 'e6', 'f5', 'g4', 'h3']},
+        {'d8'=>['d6', 'd7']},
+        {'e8'=>['d7']},
+        {'g8'=>['f6', 'h6']},
+        {'a7'=>['a6', 'a5']},
+        {'b7'=>['b6', 'b5']},
+        {'c7'=>['c6', 'c5']},
+        {'e7'=>['e6', 'e5']},
+        {'f7'=>['f6', 'f5']},
+        {'g7'=>['g6', 'g5']},
+        {'h7'=>['h6', 'h5']},
+        {'d5'=>['e4', 'd4']}
+     ]
+
+      actual = ChessValidator::Engine.find_next_moves_from_moves(['e4', 'd5', 'c3']).map do |piece|
+        { piece.position => piece.valid_moves }
+      end
+
+      expect(actual).to eq expected
+    end
+  end
+
+  describe 'pieces' do
+    it 'returns the pieces from the given fen string' do
+      expected = [
+        {piece_type: 'r', position: 'a8'},
+        {piece_type: 'b', position: 'c8'},
+        {piece_type: 'r', position: 'f8'},
+        {piece_type: 'p', position: 'e7'},
+        {piece_type: 'p', position: 'f7'},
+        {piece_type: 'b', position: 'g7'},
+        {piece_type: 'k', position: 'h7'},
+        {piece_type: 'p', position: 'a6'},
+        {piece_type: 'p', position: 'd6'},
+        {piece_type: 'n', position: 'f6'},
+        {piece_type: 'p', position: 'g6'},
+        {piece_type: 'p', position: 'h6'},
+        {piece_type: 'q', position: 'a5'},
+        {piece_type: 'p', position: 'c5'},
+        {piece_type: 'P', position: 'd5'},
+        {piece_type: 'n', position: 'a4'},
+        {piece_type: 'P', position: 'e4'},
+        {piece_type: 'N', position: 'c3'},
+        {piece_type: 'B', position: 'e3'},
+        {piece_type: 'N', position: 'f3'},
+        {piece_type: 'P', position: 'h3'},
+        {piece_type: 'P', position: 'a2'},
+        {piece_type: 'P', position: 'b2'},
+        {piece_type: 'Q', position: 'd2'},
+        {piece_type: 'B', position: 'e2'},
+        {piece_type: 'P', position: 'f2'},
+        {piece_type: 'P', position: 'g2'},
+        {piece_type: 'R', position: 'a1'},
+        {piece_type: 'R', position: 'f1'},
+        {piece_type: 'K', position: 'g1'}
+      ]
+
+      fen_notation = 'r1b2r2/4ppbk/p2p1npp/q1pP4/n3P3/2N1BN1P/PP1QBPP1/R4RK1 w - - 2 15'
+
+      actual = ChessValidator::Engine.pieces(fen_notation).map do |piece|
+        {piece_type: piece.piece_type, position: piece.position }
+      end
+
+      expect(actual).to eq expected
+    end
+
+    context 'when there are few pieces' do
+      it 'returns the pieces from the string' do
+        expected = [
+          {piece_type: 'k', position: 'e7'},
+          {piece_type: 'K', position: 'd3'}
+        ]
+        fen_notation = '8/4k3/8/8/8/3K4/8/8 w - - 2 100'
+
+        actual = ChessValidator::Engine.pieces(fen_notation).map do |piece|
+          {piece_type: piece.piece_type, position: piece.position }
+        end
+
+        expect(actual).to eq expected
+      end
+    end
+  end
+
+  describe 'move' do
+    it 'returns the new fen notated string' do
+      fen_notation = 'rnbqkbnr/ppp1pppp/8/3p4/3P4/2N5/PPP1PPPP/R1BQKBNR b KQkq - 1 2'
+      piece = ChessValidator::Piece.new('n', 2)
+      move = 'c6'
+      expected = 'r1bqkbnr/ppp1pppp/2n5/3p4/3P4/2N5/PPP1PPPP/R1BQKBNR w KQkq - 2 3'
+
+      actual = ChessValidator::Engine.move(piece, move, fen_notation)
+
+      expect(actual).to eq expected
+    end
+  end
+
+  describe 'result' do
+    context 'when it is a draw' do
+      it 'returns the result of the game' do
+        fen_notation = '8/4k3/8/8/8/3K4/8/8 w - - 2 100'
+        expected = '1/2-1/2'
+
+        actual = ChessValidator::Engine.result(fen_notation)
+
+        expect(actual).to eq expected
+      end
+    end
+
+    context 'when the result is a checkmate' do
+      it 'returns the result' do
+        expected = '1-0'
+        fen_notation = 'r1bqkb1r/ppp1pQpp/2np1n2/8/2BP4/8/PPP1PPPP/RNBQKBNR b KQkq - 5 4'
+        fen_notation = 'r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 5 4'
+
+        actual = ChessValidator::Engine.result(fen_notation)
+
+        expect(actual).to eq expected
+      end
+    end
+
+    context 'when there is no result' do
+      it 'returns nil' do
+        fen_notation = 'rnbqkbnr/ppp1pppp/8/3p4/3P4/2N5/PPP1PPPP/R1BQKBNR b KQkq - 1 2'
+        actual = ChessValidator::Engine.result(fen_notation)
+
+        expect(actual).to be_nil
       end
     end
   end
