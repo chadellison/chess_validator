@@ -1,9 +1,7 @@
-require 'move_logic'
-require 'board_logic'
-require 'pgn'
+require 'engine'
 
-RSpec.describe ChessValidator::MoveLogic do
-  describe 'next_moves' do
+RSpec.describe ChessValidator::Engine do
+  describe 'find_next_moves' do
     context 'when there is a new board' do
       it 'returns an array of piece objects with their respective next moves' do
         expected = [
@@ -19,9 +17,10 @@ RSpec.describe ChessValidator::MoveLogic do
           {'g1'=>['f3', 'h3']},
         ]
 
-        fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+        # fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+        fen_notation = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
-        actual = ChessValidator::MoveLogic.next_moves(fen).map do |piece|
+        actual = ChessValidator::Engine.find_next_moves(fen_notation).map do |piece|
           { piece.position => piece.valid_moves }
         end
 
@@ -43,9 +42,9 @@ RSpec.describe ChessValidator::MoveLogic do
           {'b5'=>['a5', 'c5', 'b4', 'b6', 'b7', 'b8']}
         ]
 
-        fen = PGN::FEN.new('2br4/p3qpk1/p1p1p1pp/1rN1P3/1P3P2/2Q1P3/6PP/RR4K1 b - - 4 23')
+        fen_notation = '2br4/p3qpk1/p1p1p1pp/1rN1P3/1P3P2/2Q1P3/6PP/RR4K1 b - - 4 23'
 
-        actual = ChessValidator::MoveLogic.next_moves(fen).map do |piece|
+        actual = ChessValidator::Engine.find_next_moves(fen_notation).map do |piece|
           { piece.position => piece.valid_moves }
         end
 
@@ -67,9 +66,9 @@ RSpec.describe ChessValidator::MoveLogic do
           {'d3'=>['c4', 'b5', 'c2', 'b1', 'e2', 'f1']}
         ]
 
-        fen = PGN::FEN.new('7k/p6p/q1pr1rp1/4Rp2/1P2p3/P1QbP1PB/5P1P/2R3K1 b - - 3 26')
+        fen_notation = '7k/p6p/q1pr1rp1/4Rp2/1P2p3/P1QbP1PB/5P1P/2R3K1 b - - 3 26'
 
-        actual = ChessValidator::MoveLogic.next_moves(fen).map do |piece|
+        actual = ChessValidator::Engine.find_next_moves(fen_notation).map do |piece|
           { piece.position => piece.valid_moves }
         end
 
@@ -95,9 +94,9 @@ RSpec.describe ChessValidator::MoveLogic do
           {'g1'=>['h1', 'h2']}
        ]
 
-        fen = PGN::FEN.new('r1b2r2/4ppbk/p2p1npp/q1pP4/n3P3/2N1BN1P/PP1QBPP1/R4RK1 w - - 2 15')
+        fen_notation = 'r1b2r2/4ppbk/p2p1npp/q1pP4/n3P3/2N1BN1P/PP1QBPP1/R4RK1 w - - 2 15'
 
-        actual = ChessValidator::MoveLogic.next_moves(fen).map do |piece|
+        actual = ChessValidator::Engine.find_next_moves(fen_notation).map do |piece|
           { piece.position => piece.valid_moves }
         end
 

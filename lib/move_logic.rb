@@ -4,16 +4,6 @@ require 'pgn'
 module ChessValidator
   class MoveLogic
     class << self
-      def find_next_moves(fen_notation)
-        fen = PGN::FEN.new(fen_notation)
-        next_moves(fen)
-      end
-
-      def find_next_moves_from_moves(moves)
-        fen = PGN::Game.new(moves).positions.last.to_fen
-        next_moves(fen)
-      end
-
       def next_moves(fen)
         board = BoardLogic.build_board(fen)
         pieces = []
@@ -51,12 +41,21 @@ module ChessValidator
       def with_next_move(piece, board, move)
         index = INDEX_KEY[move]
         new_board = board.clone
-        new_piece = Piece.new(piece.piece_type, index)
+        piece_type = resolve_piece_type(piece.piece_type, move)
+        new_piece = Piece.new(piece_type, index)
         new_board.delete(piece.square_index)
         new_board[index] = new_piece
         new_board = handle_castle(new_board, move) if castled?(piece, move)
         new_board = handle_en_passant(new_board, piece.color, move) if en_passant?(piece, move, new_board[index])
         new_board
+      end
+
+      def resolve_piece_type(piece_type, move)
+        if piece_type.downcase == 'p' && ['1', '8'].include?(move[1])
+          move[1] == '8' ? 'Q' : 'q'
+        else
+          piece_type
+        end
       end
 
       def handle_en_passant(board, pawn_color, move)

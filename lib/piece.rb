@@ -1,4 +1,4 @@
-require_relative './constants/square_key'
+require_relative './constants/move_key'
 
 module ChessValidator
   class Piece

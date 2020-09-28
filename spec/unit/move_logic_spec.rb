@@ -5,42 +5,6 @@ require 'pgn'
 require 'pry'
 
 RSpec.describe ChessValidator::MoveLogic do
-  describe 'find_next_moves' do
-    it 'calls next_moves with the fen object' do
-      fen_notatioin = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-      fen = PGN::FEN.new(fen_notatioin)
-      allow(PGN::FEN).to receive(:new).with(fen_notatioin)
-        .and_return(fen)
-
-      expect(ChessValidator::MoveLogic).to receive(:next_moves).with(fen)
-
-      ChessValidator::MoveLogic.find_next_moves(fen_notatioin)
-    end
-  end
-
-  describe 'find_next_moves_from_moves' do
-    it 'calls next_moves with the fen object' do
-      moves = ['d3', 'c6', 'e4']
-      fen_notatioin = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-      game = PGN::Game.new(moves)
-
-      positions = game.positions
-      last_position = game.positions.last
-
-      fen = PGN::FEN.new(fen_notatioin)
-
-      allow(PGN::Game).to receive(:new).with(moves)
-        .and_return(game)
-
-      allow(game).to receive(:positions).and_return(positions)
-      allow(last_position).to receive(:to_fen).and_return(fen)
-
-      expect(ChessValidator::MoveLogic).to receive(:next_moves).with(fen)
-
-      ChessValidator::MoveLogic.find_next_moves_from_moves(moves)
-    end
-  end
-
   describe 'moves_for_rook' do
     it 'returns an array of all possible moves for a rook in a given position' do
       expected = ['d5', 'd6', 'd7', 'd8', 'd3', 'd2', 'd1', 'c4', 'b4', 'a4',
@@ -1036,16 +1000,23 @@ RSpec.describe ChessValidator::MoveLogic do
     end
   end
 
-  describe 'make_random_move' do
-    it 'calls make move with the correct arguments' do
-      fen_notatioin = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-      piece = ChessValidator::Piece.new('k', 2)
-      piece.valid_moves = ['d4']
-      pieces_with_moves = [piece]
-      expect(ChessValidator::MoveLogic).to receive(:make_move)
-        .with(piece, 'd4', fen_notatioin)
+  describe 'resolve_piece_type' do
+    describe 'when the piece type is p and the index 1 of move is 8' do
+      it 'returns Q' do
+        expect(ChessValidator::MoveLogic.resolve_piece_type('P', 'a8')).to eq 'Q'
+      end
+    end
 
-      ChessValidator::MoveLogic.make_random_move(fen_notatioin, pieces_with_moves)
+    describe 'when the piece type is p and the index 1 of move is 1' do
+      it 'returns q' do
+        expect(ChessValidator::MoveLogic.resolve_piece_type('p', 'b1')).to eq 'q'
+      end
+    end
+
+    describe 'when the piece type is not p' do
+      it 'returns the piece_type' do
+        expect(ChessValidator::MoveLogic.resolve_piece_type('n', 'b1')).to eq 'n'
+      end
     end
   end
 end
