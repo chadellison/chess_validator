@@ -49,6 +49,20 @@ RSpec.describe ChessValidator::Engine do
 
         expect(actual).to eq expected
       end
+
+      it 'returns the array of pieces include the enemy targets of the pieces' do
+        expected = [{"qe7"=>["Nc5"]}, {"rb5"=>["Nc5", "Pb4"]}]
+
+        fen_notation = '2br4/p3qpk1/p1p1p1pp/1rN1P3/1P3P2/2Q1P3/6PP/RR4K1 b - - 4 23'
+
+        actual = ChessValidator::Engine.find_next_moves(fen_notation).reject do |piece|
+          piece.targets.empty?
+        end.map do |piece|
+          { piece.piece_type + piece.position => piece.targets.map { |t| t.piece_type + t.position } }
+        end
+
+        expect(actual).to eq expected
+      end
     end
 
     context 'when the board is another pattern' do

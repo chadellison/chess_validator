@@ -2,15 +2,15 @@ require_relative './constants/move_key'
 
 module ChessValidator
   class Piece
-    attr_accessor :position, :piece_type, :color, :square_index, :valid_moves
+    attr_accessor :position, :piece_type, :color, :square_index, :valid_moves, :targets
 
     def initialize(char, square_index)
       @piece_type = char
       @square_index = square_index
       @color = get_color(char)
       @position = get_position(square_index)
-      @enemy_targets = []
       @valid_moves = []
+      @targets = []
     end
 
     def get_position(square_index)

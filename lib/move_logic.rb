@@ -19,7 +19,10 @@ module ChessValidator
 
       def load_valid_moves(board, piece, fen)
         moves_for_piece(piece).each do |move|
-          piece.valid_moves << move if valid_move?(piece, board, move, fen)
+          if valid_move?(piece, board, move, fen)
+            piece.valid_moves << move
+            piece.targets << board[INDEX_KEY[move]] if board[INDEX_KEY[move]]
+          end
         end
       end
 
