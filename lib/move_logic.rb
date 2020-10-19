@@ -21,8 +21,18 @@ module ChessValidator
         moves_for_piece(piece).each do |move|
           if valid_move?(piece, board, move, fen)
             piece.valid_moves << move
-            piece.targets << board[INDEX_KEY[move]] if board[INDEX_KEY[move]]
+            target = find_target(board, piece, move)
+            piece.targets << target if target
           end
+        end
+      end
+
+      def find_target(board, piece, move)
+        if board[INDEX_KEY[move]]
+          board[INDEX_KEY[move]]
+        elsif piece.piece_type.downcase == 'p' && piece.position[0] != move[0]
+          en_passant_position = piece.color == 'w' ? move[0] + '5' : move[0] + '4'
+          board[INDEX_KEY[en_passant_position]]
         end
       end
 

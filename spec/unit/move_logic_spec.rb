@@ -1019,4 +1019,41 @@ RSpec.describe ChessValidator::MoveLogic do
       end
     end
   end
+
+  describe 'find_target' do
+    context 'when the board has a piece on the given square' do
+      it 'returns that piece' do
+        queen = ChessValidator::Piece.new('Q', 3)
+        rook = ChessValidator::Piece.new('r', 1)
+        board = { 1 => rook }
+
+        actual = ChessValidator::MoveLogic.find_target(board, queen, 'a8')
+
+        expect(actual).to eq rook
+      end
+    end
+
+    context 'when the board has no piece on the given square but the piece_type is a pawn and it has a different column' do
+      it 'returns that piece' do
+        attacking_pawn = ChessValidator::Piece.new('P', 26)
+        pawn = ChessValidator::Piece.new('p', 25)
+        board = { 25 => pawn, 26 => attacking_pawn }
+
+        actual = ChessValidator::MoveLogic.find_target(board, attacking_pawn, 'a6')
+
+        expect(actual).to eq pawn
+      end
+    end
+
+    context 'when the board has no piece on the given square and the piece_type is not a pawn' do
+      it 'returns that piece' do
+        queen = ChessValidator::Piece.new('Q', 3)
+        board = { }
+
+        actual = ChessValidator::MoveLogic.find_target(board, queen, 'a8')
+
+        expect(actual).to be_nil
+      end
+    end
+  end
 end
