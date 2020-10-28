@@ -925,7 +925,7 @@ RSpec.describe ChessValidator::MoveLogic do
     end
   end
 
-  describe 'load_valid_moves' do
+  describe 'load_move_data' do
     it 'calls moves_for_piece and valid_move?' do
       pawn = ChessValidator::Piece.new('p', 52)
       board = { 52 => pawn }
@@ -940,12 +940,12 @@ RSpec.describe ChessValidator::MoveLogic do
       expect(ChessValidator::MoveLogic).to receive(:valid_move?)
         .with(pawn, board, 'd4', fen)
 
-      ChessValidator::MoveLogic.load_valid_moves(board, pawn, fen)
+      ChessValidator::MoveLogic.load_move_data(board, pawn, fen)
     end
   end
 
   describe 'next_moves' do
-    it 'calls build_board, load_valid_moves' do
+    it 'calls build_board, load_move_data' do
       pawn = ChessValidator::Piece.new('P', 52)
       board = { 52 => pawn }
       fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
@@ -953,7 +953,7 @@ RSpec.describe ChessValidator::MoveLogic do
       expect(ChessValidator::BoardLogic).to receive(:build_board)
         .and_return(board)
 
-      expect(ChessValidator::MoveLogic).to receive(:load_valid_moves)
+      expect(ChessValidator::MoveLogic).to receive(:load_move_data)
 
       ChessValidator::MoveLogic.next_moves(fen)
     end
@@ -969,7 +969,7 @@ RSpec.describe ChessValidator::MoveLogic do
       allow(ChessValidator::BoardLogic).to receive(:build_board)
         .and_return(board)
 
-      expect(ChessValidator::MoveLogic).to receive(:load_valid_moves)
+      expect(ChessValidator::MoveLogic).to receive(:load_move_data)
 
       actual = ChessValidator::MoveLogic.next_moves(fen)
 

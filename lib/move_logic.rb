@@ -9,7 +9,7 @@ module ChessValidator
         pieces = []
         board.values.each do |piece|
           if piece.color == fen.active
-            load_valid_moves(board, piece, fen)
+            load_move_data(board, piece, fen)
             pieces << piece if piece.valid_moves.size > 0
           end
         end
@@ -17,12 +17,14 @@ module ChessValidator
         pieces
       end
 
-      def load_valid_moves(board, piece, fen)
+      def load_move_data(board, piece, fen)
         moves_for_piece(piece).each do |move|
           if valid_move?(piece, board, move, fen)
             piece.valid_moves << move
             target = find_target(board, piece, move)
             piece.targets << target if target
+          else
+            piece.move_potential << move
           end
         end
       end
