@@ -191,15 +191,20 @@ module ChessValidator
       end
 
       def advance_pawn?(pawn, board, move)
-        if (pawn.position[1].to_i - move[1].to_i).abs == 1
-          empty_square?(board, move)
-        else
-          occupied_spaces = []
-          board.values.each do |piece|
-            occupied_spaces << piece.position
+        if empty_square?(board, forward_by(pawn, 1))
+          if (pawn.position[1].to_i - move[1].to_i).abs == 2
+            empty_square?(board, forward_by(pawn, 2))
+          else
+            true
           end
-          valid_move_path?(pawn, move, occupied_spaces) && empty_square?(board, move)
+        else
+          false
         end
+      end
+
+      def forward_by(piece, count)
+        position = piece.position
+        piece.color == 'w' ? position[0] + (position[1].to_i + count).to_s : position[0] + (position[1].to_i - count).to_s
       end
 
       def valid_destination?(piece, board, move)
