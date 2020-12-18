@@ -104,6 +104,15 @@ RSpec.describe ChessValidator::MoveLogic do
         expect(ChessValidator::MoveLogic.moves_for_pawn(piece).sort).to eq expected
       end
     end
+
+    context 'when the pawn is on h2' do
+      it 'returns the correct moves' do
+        piece = ChessValidator::Piece.new('P', 56)
+        expected = ['h3', 'h4', 'g3'].sort
+
+        expect(ChessValidator::MoveLogic.moves_for_pawn(piece).sort).to eq expected
+      end
+    end
   end
 
   describe 'vertical_collision?' do
@@ -942,6 +951,23 @@ RSpec.describe ChessValidator::MoveLogic do
 
       ChessValidator::MoveLogic.load_move_data(board, pawn, fen)
     end
+
+    context 'when the move is invalid' do
+      it 'returns false' do
+        pawn = ChessValidator::Piece.new('P', 55)
+        queen = ChessValidator::Piece.new('Q', 32)
+        board = { 55 => pawn, 32 => queen }
+
+        allow(ChessValidator::MoveLogic).to receive(:king_will_be_safe?)
+          .and_return(true)
+
+        fen = PGN::FEN.new('r1bqkbnr/pppp1ppp/2n5/4p2Q/4P2P/8/PPPP1PP1/RNB1KBNR w KQkq - 0 1')
+
+
+        ChessValidator::MoveLogic.load_move_data(board, pawn, fen)
+        expect(pawn.targets).to eq []
+      end
+    end
   end
 
   describe 'next_moves' do
@@ -1027,7 +1053,7 @@ RSpec.describe ChessValidator::MoveLogic do
         rook = ChessValidator::Piece.new('r', 1)
         board = { 1 => rook }
 
-        actual = ChessValidator::MoveLogic.find_target(board, queen, 'a8')
+        actual = ChessValidator::MoveLogic.find_target(board, queen, 'a8', '-')
 
         expect(actual).to eq rook
       end
@@ -1039,7 +1065,7 @@ RSpec.describe ChessValidator::MoveLogic do
         rook = ChessValidator::Piece.new('r', 28)
         board = { 36 => pawn, 28 => rook }
 
-        actual = ChessValidator::MoveLogic.find_target(board, pawn, 'd5')
+        actual = ChessValidator::MoveLogic.find_target(board, pawn, 'd5', '-')
 
         expect(actual).to be_nil
       end
@@ -1051,7 +1077,7 @@ RSpec.describe ChessValidator::MoveLogic do
         pawn = ChessValidator::Piece.new('p', 25)
         board = { 25 => pawn, 26 => attacking_pawn }
 
-        actual = ChessValidator::MoveLogic.find_target(board, attacking_pawn, 'a6')
+        actual = ChessValidator::MoveLogic.find_target(board, attacking_pawn, 'a6', 'a6')
 
         expect(actual).to eq pawn
       end
@@ -1062,7 +1088,7 @@ RSpec.describe ChessValidator::MoveLogic do
         queen = ChessValidator::Piece.new('Q', 3)
         board = { }
 
-        actual = ChessValidator::MoveLogic.find_target(board, queen, 'a8')
+        actual = ChessValidator::MoveLogic.find_target(board, queen, 'a8', '-')
 
         expect(actual).to be_nil
       end

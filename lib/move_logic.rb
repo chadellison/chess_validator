@@ -21,7 +21,7 @@ module ChessValidator
         moves_for_piece(piece).each do |move|
           if valid_move?(piece, board, move, fen)
             piece.valid_moves << move
-            target = find_target(board, piece, move)
+            target = find_target(board, piece, move, fen.en_passant)
             piece.targets << target if target
           else
             piece.move_potential << move
@@ -29,12 +29,12 @@ module ChessValidator
         end
       end
 
-      def find_target(board, piece, move)
+      def find_target(board, piece, move, en_passant)
         if piece.piece_type.downcase == 'p' && piece.position[0] == move[0]
           nil
         elsif board[INDEX_KEY[move]]
           board[INDEX_KEY[move]]
-        elsif piece.piece_type.downcase == 'p'
+        elsif piece.piece_type.downcase == 'p' && move == en_passant
           en_passant_position = piece.color == 'w' ? move[0] + '5' : move[0] + '4'
           board[INDEX_KEY[en_passant_position]]
         end
@@ -221,7 +221,7 @@ module ChessValidator
       end
 
       def empty_square?(board, move)
-        board.values.detect { |piece| piece.position == move }.nil?
+        board.values.none? { |piece| piece.position == move }
       end
 
       def valid_move_path?(piece, move, occupied_spaces)
