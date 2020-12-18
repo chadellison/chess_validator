@@ -1033,6 +1033,18 @@ RSpec.describe ChessValidator::MoveLogic do
       end
     end
 
+    context 'when the board has a piece on the given vertical square and the attacker is a pawn' do
+      it 'returns nil' do
+        pawn = ChessValidator::Piece.new('P', 36)
+        rook = ChessValidator::Piece.new('r', 28)
+        board = { 36 => pawn, 28 => rook }
+
+        actual = ChessValidator::MoveLogic.find_target(board, pawn, 'd5')
+
+        expect(actual).to be_nil
+      end
+    end
+
     context 'when the board has no piece on the given square but the piece_type is a pawn and it has a different column' do
       it 'returns that piece' do
         attacking_pawn = ChessValidator::Piece.new('P', 26)

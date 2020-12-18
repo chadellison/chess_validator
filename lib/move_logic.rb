@@ -30,9 +30,11 @@ module ChessValidator
       end
 
       def find_target(board, piece, move)
-        if board[INDEX_KEY[move]]
+        if piece.piece_type.downcase == 'p' && piece.position[0] == move[0]
+          nil
+        elsif board[INDEX_KEY[move]]
           board[INDEX_KEY[move]]
-        elsif piece.piece_type.downcase == 'p' && piece.position[0] != move[0]
+        elsif piece.piece_type.downcase == 'p'
           en_passant_position = piece.color == 'w' ? move[0] + '5' : move[0] + '4'
           board[INDEX_KEY[en_passant_position]]
         end
