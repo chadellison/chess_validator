@@ -629,12 +629,23 @@ RSpec.describe ChessValidator::MoveLogic do
 
       context 'when the square is occupied by an enemy' do
         it 'returns true' do
+          knight = ChessValidator::Piece.new('N', 35)
+          enemy = ChessValidator::Piece.new('p', 27)
+          board = { 35 => knight, 27 => enemy }
+          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+          expect(ChessValidator::MoveLogic.handle_king(knight, board, 'c5', fen, ['c4', 'c5'])).to be true
+        end
+      end
+
+      context 'when the square is occupied by an enemy that is a king' do
+        it 'returns false' do
           king = ChessValidator::Piece.new('K', 35)
           enemy = ChessValidator::Piece.new('p', 27)
           board = { 35 => king, 27 => enemy }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'c5'])).to be true
+          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'c5'])).to be false
         end
       end
 

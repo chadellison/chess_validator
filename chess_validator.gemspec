@@ -1,6 +1,6 @@
 Gem::Specification.new 'chess_validator', '1.0' do |s|
   s.name        = 'chess_validator'
-  s.version     = '0.2.12'
+  s.version     = '0.2.13'
   s.date        = '2020-11-16'
   s.summary     = "A chess move validator"
   s.description = "Documentation: https://github.com/chadellison/chess_validator"
