@@ -428,6 +428,46 @@ RSpec.describe ChessValidator::MoveLogic do
   end
 
   describe 'handle_king' do
+    context 'when the king is adjacent to an attacking rook and attempts to move to a square covered by the rook' do
+      it 'returns false' do
+        fen = PGN::FEN.new('2bq1k2/3p4/pp1P4/P2Q1p2/2N5/2P3Kr/nB3pBP/3Q2NR w - - 2 35')
+        board = ChessValidator::BoardLogic.build_board(fen)
+
+        king = board[47]
+        occupied_spaces = []
+        board.values.each { |p| occupied_spaces << p.position }
+        actual = ChessValidator::MoveLogic.handle_king(king, board, 'f3', fen, occupied_spaces)
+
+        expect(actual).to be false
+      end
+    end
+
+    context 'when the king is adjacent to an attacking queen and attempts to move to a square covered by the queen' do
+      it 'returns false' do
+        fen = PGN::FEN.new('8/7Q/2k1Q3/4pP2/2P2BK1/Nn6/p2p4/R5R1 b - - 2 60')
+        board = ChessValidator::BoardLogic.build_board(fen)
+
+        king = board[19]
+        occupied_spaces = []
+        board.values.each { |p| occupied_spaces << p.position }
+        actual = ChessValidator::MoveLogic.handle_king(king, board, 'b6', fen, occupied_spaces)
+
+        expect(actual).to be false
+      end
+    end
+
+    context 'when the king is diagonal to an attacking queen and attempts to move to a square covered by the queen' do
+      it 'returns false' do
+        fen = PGN::FEN.new('k2r2Q1/1R6/3r4/3Bq3/5K2/1p6/1N6/3q4 w - - 4 63')
+        board = ChessValidator::BoardLogic.build_board(fen)
+
+        king = board[38]
+        actual = ChessValidator::MoveLogic.handle_king(king, board, 'g3', fen, [])
+
+        expect(actual).to be false
+      end
+    end
+
     context 'when the king has moved two' do
       context 'when there are no enemy pieces attacking the king or the through check position' do
         it 'returns true' do
@@ -609,7 +649,7 @@ RSpec.describe ChessValidator::MoveLogic do
         it 'returns false' do
           king = ChessValidator::Piece.new('K', 35)
           enemy_king = ChessValidator::Piece.new('k', 19)
-          board = { 35 => king, 31 => enemy_king }
+          board = { 35 => king, 19 => enemy_king }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
           expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'g5'])).to be false
@@ -621,28 +661,6 @@ RSpec.describe ChessValidator::MoveLogic do
           king = ChessValidator::Piece.new('K', 35)
           ally = ChessValidator::Piece.new('P', 27)
           board = { 35 => king, 27 => ally }
-          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
-
-          expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'c5'])).to be false
-        end
-      end
-
-      context 'when the square is occupied by an enemy' do
-        it 'returns true' do
-          knight = ChessValidator::Piece.new('N', 35)
-          enemy = ChessValidator::Piece.new('p', 27)
-          board = { 35 => knight, 27 => enemy }
-          fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
-
-          expect(ChessValidator::MoveLogic.handle_king(knight, board, 'c5', fen, ['c4', 'c5'])).to be true
-        end
-      end
-
-      context 'when the square is occupied by an enemy that is a king' do
-        it 'returns false' do
-          king = ChessValidator::Piece.new('K', 35)
-          enemy = ChessValidator::Piece.new('p', 27)
-          board = { 35 => king, 27 => enemy }
           fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
           expect(ChessValidator::MoveLogic.handle_king(king, board, 'c5', fen, ['c4', 'c5'])).to be false
@@ -725,6 +743,18 @@ RSpec.describe ChessValidator::MoveLogic do
         expect(actual).to be false
       end
     end
+
+    context 'when the king is in check by a rook and tries to move but remains in check' do
+      it 'returns false' do
+        fen = PGN::FEN.new('2bq1k2/3p4/pp1P4/P2Q1p2/2N5/2P3Kr/nB3pBP/3Q2NR w - - 2 35')
+        board = ChessValidator::BoardLogic.build_board(fen)
+
+        king = board[47]
+        actual = ChessValidator::MoveLogic.valid_move?(king, board, 'f3', fen.to_s)
+
+        expect(actual).to be false
+      end
+    end
   end
 
   describe 'king_will_be_safe?' do
@@ -743,6 +773,27 @@ RSpec.describe ChessValidator::MoveLogic do
         .and_return(true)
 
       expect(ChessValidator::MoveLogic.king_will_be_safe?(rook, board, 'c4')).to be true
+    end
+
+    context 'when find_king_and_spaces returns nil for the king' do
+      it 'returns false' do
+        rook = ChessValidator::Piece.new('r', 43)
+        new_rook = ChessValidator::Piece.new('r', 35)
+        king = ChessValidator::Piece.new('k', 13)
+        board = { 43 => rook, 13 => king }
+        new_board = { 35 => new_rook, 13 => king }
+
+        expect(ChessValidator::MoveLogic).to receive(:with_next_move)
+          .with(rook, board, 'c4').and_return(new_board)
+
+        expect(ChessValidator::MoveLogic).to receive(:find_king_and_spaces)
+          .with(new_board, 'b')
+          .and_return([nil, []])
+
+        expect(ChessValidator::MoveLogic).not_to receive(:king_is_safe?)
+
+        expect(ChessValidator::MoveLogic.king_will_be_safe?(rook, board, 'c4')).to be false
+      end
     end
   end
 

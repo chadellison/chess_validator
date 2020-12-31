@@ -130,6 +130,7 @@ module ChessValidator
       def king_will_be_safe?(piece, board, move)
         new_board = with_next_move(piece, board, move)
         king, occupied_spaces = find_king_and_spaces(new_board, piece.color)
+        return false if king.nil?
         king_is_safe?(king.color, new_board, king.position, occupied_spaces)
       end
 
@@ -161,7 +162,7 @@ module ChessValidator
           board.values.none? { |piece| [between, move].include?(piece.position) } &&
           empty_b_square
         else
-          valid_destination?(king, board, move) && king_is_safe?(king.color, board, move, occupied_spaces)
+          valid_destination?(king, board, move) && king_will_be_safe?(king, board, move)
         end
       end
 
@@ -210,7 +211,7 @@ module ChessValidator
       def valid_destination?(piece, board, move)
         target_piece = find_piece(board, move)
         if target_piece
-          target_piece.color != piece.color && piece.piece_type.downcase != 'k'
+          target_piece.color != piece.color && target_piece.piece_type.downcase != 'k'
         else
           true
         end
