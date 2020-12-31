@@ -1091,12 +1091,13 @@ RSpec.describe ChessValidator::MoveLogic do
 
       expect(ChessValidator::BoardLogic).to receive(:build_board).with(fen)
         .and_return(board)
+
       expect(ChessValidator::MoveLogic).to receive(:with_next_move)
         .with(pawn, board, 'd4')
         .and_return(board)
 
       expect(ChessValidator::BoardLogic).to receive(:to_fen_notation)
-        .with(board, fen, pawn, 'd4')
+        .with(board, fen, pawn, 'd4', nil)
 
       ChessValidator::MoveLogic.make_move(pawn, 'd4', fen_notatioin)
     end

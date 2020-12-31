@@ -17,18 +17,18 @@ module ChessValidator
       board
     end
 
-    def self.to_fen_notation(board, previous_fen, piece, move)
+    def self.to_fen_notation(board, previous_fen, piece, move, captured)
       notation = handle_position(board)
       notation += find_turn(previous_fen.active)
       notation += handle_castle(previous_fen.castling, piece, board)
       notation += handle_en_passant(piece, move)
-      notation += handle_half_move_clock(board.size, previous_fen, piece)
+      notation += handle_half_move_clock(previous_fen, piece.piece_type, captured)
       notation += piece.color == 'b' ? previous_fen.fullmove.next : previous_fen.fullmove
       notation
     end
 
-    def self.handle_half_move_clock(board_size, previous_fen, piece)
-      if piece.piece_type == 'pawn' || build_board(previous_fen).size > board_size
+    def self.handle_half_move_clock(previous_fen, piece_type, captured)
+      if piece_type.downcase == 'p' || captured
         '0 '
       else
         previous_fen.halfmove.next + ' '

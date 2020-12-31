@@ -116,7 +116,7 @@ module ChessValidator
         board = BoardLogic.build_board(fen)
         new_board = with_next_move(piece, board, move)
 
-        BoardLogic.to_fen_notation(new_board, fen, piece, move)
+        BoardLogic.to_fen_notation(new_board, fen, piece, move, board[INDEX_KEY[move]])
       end
 
       def castled?(piece, move)
