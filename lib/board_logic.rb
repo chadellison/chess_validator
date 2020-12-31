@@ -20,7 +20,7 @@ module ChessValidator
     def self.to_fen_notation(board, previous_fen, piece, move)
       notation = handle_position(board)
       notation += find_turn(previous_fen.active)
-      notation += handle_castle(previous_fen.castling, piece)
+      notation += handle_castle(previous_fen.castling, piece, board)
       notation += handle_en_passant(piece, move)
       notation += handle_half_move_clock(board.size, previous_fen, piece)
       notation += piece.color == 'b' ? previous_fen.fullmove.next : previous_fen.fullmove
@@ -35,17 +35,15 @@ module ChessValidator
       end
     end
 
-    def self.handle_castle(castling, piece)
+    def self.handle_castle(castling, piece, board)
       return castling if castling == '-'
-      if ['K', 'Q', 'k', 'q'].include?(piece.piece_type)
-        castling.size == 1 ? '-' : castling.delete(piece.piece_type)
-      elsif piece.piece_type.downcase == 'r'
-        castle_side = piece.position[0] == 'a' ? 'q' : 'k'
-        castle_side = castle_side.capitalize if piece.color == 'w'
-        castling.size == 1 ? '-' : castling.delete(castle_side)
-      else
-        castling
-      end
+      castling.delete!('K') if board[64].nil? || board[64].piece_type != 'R'
+      castling.delete!('K') if board[61].nil? || board[61].piece_type != 'K'
+      castling.delete!('Q') if board[57].nil? || board[57].piece_type != 'R'
+      castling.delete!('k') if board[8].nil? || board[8].piece_type != 'r'
+      castling.delete!('k') if board[5].nil? || board[5].piece_type != 'k'
+      castling.delete!('q') if board[1].nil? || board[1].piece_type != 'r'
+      castling.size == 1 ? '-' : castling
     end
 
     def self.handle_en_passant(piece, move)

@@ -1063,6 +1063,20 @@ RSpec.describe ChessValidator::MoveLogic do
 
       expect(actual.first.valid_moves).to eq valid_moves
     end
+
+    it 'does not mutate the position of the pieces' do
+      fen = PGN::FEN.new('rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1')
+
+      board = ChessValidator::BoardLogic.build_board(fen)
+
+      from_board = board.values.detect { |piece| piece.position == 'd7' }
+
+      pieces_with_moves = ChessValidator::MoveLogic.next_moves(fen)
+
+      from_pieces = pieces_with_moves.detect { |piece| piece.position == 'd7' }
+
+      expect(from_board.piece_type).to eq from_pieces.piece_type
+    end
   end
 
   describe 'make_move' do
