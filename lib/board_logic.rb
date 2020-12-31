@@ -43,7 +43,7 @@ module ChessValidator
       castling.delete!('k') if board[8].nil? || board[8].piece_type != 'r'
       castling.delete!('k') if board[5].nil? || board[5].piece_type != 'k'
       castling.delete!('q') if board[1].nil? || board[1].piece_type != 'r'
-      castling.size == 1 ? '-' : castling
+      castling.size == 0 ? '-' : castling
     end
 
     def self.handle_en_passant(piece, move)
