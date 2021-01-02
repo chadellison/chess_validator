@@ -211,7 +211,7 @@ module ChessValidator
       def valid_destination?(piece, board, move)
         target_piece = find_piece(board, move)
         if target_piece
-          target_piece.color != piece.color && target_piece.piece_type.downcase != 'k'
+          target_piece.color != piece.color
         else
           true
         end
