@@ -38,10 +38,10 @@ module ChessValidator
     def self.handle_castle(castling, piece, board)
       return castling if castling == '-'
       castling.delete!('K') if board[64].nil? || board[64].piece_type != 'R'
-      castling.delete!('K') if board[61].nil? || board[61].piece_type != 'K'
+      castling.delete!('KQ') if board[61].nil? || board[61].piece_type != 'K'
       castling.delete!('Q') if board[57].nil? || board[57].piece_type != 'R'
       castling.delete!('k') if board[8].nil? || board[8].piece_type != 'r'
-      castling.delete!('k') if board[5].nil? || board[5].piece_type != 'k'
+      castling.delete!('kq') if board[5].nil? || board[5].piece_type != 'k'
       castling.delete!('q') if board[1].nil? || board[1].piece_type != 'r'
       castling.size == 0 ? '-' : castling
     end
